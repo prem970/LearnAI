@@ -1,0 +1,346 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   Int       @id @default(autoincrement())
+  name                 String
+  email                String    @unique
+  emailVerifiedAt      DateTime? @map("email_verified_at")
+  password             String
+  rememberToken        String?   @map("remember_token")
+  role                 String    @default("student")
+  otpCode              String?   @map("otp_code")
+  otpVerified          Boolean   @default(false) @map("otp_verified")
+  otpExpiresAt         DateTime? @map("otp_expires_at")
+  grade                String?
+  boardId              Int?      @map("board_id")
+  gradeId              Int?      @map("grade_id")
+  institutionId        Int?      @map("institution_id")
+  passwordChangedAt    DateTime? @map("password_changed_at")
+  emailChangedAt       DateTime? @map("email_changed_at")
+  pendingEmail         String?   @map("pending_email")
+  emailChangeCode      String?   @map("email_change_code") @db.VarChar(6)
+  emailChangeExpiresAt DateTime? @map("email_change_expires_at")
+  emailChangePhase     String?   @map("email_change_phase") @db.VarChar(32)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  board           Board?          @relation(fields: [boardId], references: [id])
+  boardGrade      BoardGrade?     @relation(fields: [gradeId], references: [id])
+  institution     Institution?    @relation(fields: [institutionId], references: [id])
+  teacherProfile  TeacherProfile?
+  studentProfile  StudentProfile?
+  ratingsGiven    TeacherRating[] @relation("RatingStudent")
+  ratingsReceived TeacherRating[] @relation("RatingTeacher")
+  learnTurnsAsStudent LearnTurn[] @relation("LearnStudent")
+  learnTurnsAsTeacher LearnTurn[] @relation("LearnTeacher")
+  quizzesCreated      Quiz[]
+  quizAttempts        QuizAttempt[]
+  learningRecs        StudentLearningRec[]
+
+  @@map("users")
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  label     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  curricula Curriculum[]
+  quizzes   Quiz[]
+
+  @@map("subjects")
+}
+
+model Institution {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  label     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  users     User[]
+  students  StudentProfile[]
+
+  @@map("institutions")
+}
+
+model Board {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  grades    BoardGrade[]
+  curricula Curriculum[]
+  users     User[]
+  students  StudentProfile[]
+  quizzes   Quiz[]
+
+  @@map("boards")
+}
+
+model BoardGrade {
+  id             Int      @id @default(autoincrement())
+  boardId        Int      @map("board_id")
+  label          String
+  canonicalLevel Int?     @map("canonical_level")
+  sortOrder      Int      @default(0) @map("sort_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  board          Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  curricula      Curriculum[]
+  users          User[]
+  students       StudentProfile[]
+  quizzes        Quiz[]
+
+  @@unique([boardId, label])
+  @@map("board_grades")
+}
+
+model Curriculum {
+  id        Int      @id @default(autoincrement())
+  boardId   Int      @map("board_id")
+  gradeId   Int?     @map("grade_id")
+  grade     String?
+  subjectId Int      @map("subject_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  board     Board      @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardGrade BoardGrade? @relation(fields: [gradeId], references: [id])
+  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  units     CurriculumUnit[]
+
+  @@unique([boardId, gradeId, subjectId])
+  @@map("curriculum")
+}
+
+model CurriculumUnit {
+  id           Int      @id @default(autoincrement())
+  curriculumId Int      @map("curriculum_id")
+  title        String
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  curriculum   Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  topics       CurriculumUnitTopic[]
+  quizzes      Quiz[]
+
+  @@map("curriculum_units")
+}
+
+model CurriculumUnitTopic {
+  id               Int      @id @default(autoincrement())
+  curriculumUnitId Int      @map("curriculum_unit_id")
+  title            String
+  sortOrder        Int      @default(0) @map("sort_order")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  unit             CurriculumUnit @relation(fields: [curriculumUnitId], references: [id], onDelete: Cascade)
+
+  @@map("curriculum_unit_topics")
+}
+
+model TeacherProfile {
+  id                    Int      @id @default(autoincrement())
+  userId                Int      @unique @map("user_id")
+  schoolName            String?  @map("school_name")
+  rating                Decimal? @db.Decimal(3, 2)
+  avatarUrl             String?  @map("avatar_url")
+  avatarPublicId        String?  @map("avatar_public_id")
+  uploadPreference      String?  @map("upload_preference")
+  grades                Json?
+  subjects              Json?
+  numberOfSyllabi       Int?     @map("number_of_syllabi")
+  numberOfMaterials     Int?     @map("number_of_materials")
+  teachingExplanation   String?  @map("teaching_explanation") @db.Text
+  elevenlabsVoiceId     String?  @map("elevenlabs_voice_id") @db.VarChar(64)
+  detectedTeachingStyle String?  @map("detected_teaching_style")
+  onboardingCompleted   Boolean  @default(false) @map("onboarding_completed")
+  tunePreferences       Json?    @map("tune_preferences")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_profiles")
+}
+
+model StudentProfile {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique @map("user_id")
+  boardId       Int      @map("board_id")
+  gradeId       Int      @map("grade_id")
+  grade         String?
+  institutionId Int?     @map("institution_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board         Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardGrade    BoardGrade @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+
+  @@map("student_profiles")
+}
+
+model TeacherRating {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @map("student_id")
+  teacherId Int      @map("teacher_id")
+  rating    Int
+  feedback  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  student   User     @relation("RatingStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher   User     @relation("RatingTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_ratings")
+}
+
+model LearnTurn {
+  id            Int      @id @default(autoincrement())
+  studentId     Int      @map("student_id")
+  teacherId     Int      @map("teacher_id")
+  subject       String   @db.VarChar(128)
+  lesson        String?  @db.VarChar(255)
+  topics        Json?
+  question      String   @db.Text
+  answerPreview String?  @map("answer_preview") @db.VarChar(500)
+  responseMode  String?  @map("response_mode") @db.VarChar(32)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  student User @relation("LearnStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User @relation("LearnTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, createdAt])
+  @@index([teacherId, subject])
+  @@map("learn_turns")
+}
+
+model Quiz {
+  id               Int       @id @default(autoincrement())
+  teacherId        Int       @map("teacher_id")
+  title            String    @db.VarChar(255)
+  boardId          Int?      @map("board_id")
+  gradeId          Int       @map("grade_id")
+  gradeLabel       String    @map("grade_label") @db.VarChar(128)
+  subjectId        Int?      @map("subject_id")
+  subjectLabel     String    @map("subject_label") @db.VarChar(128)
+  curriculumUnitId Int?      @map("curriculum_unit_id")
+  lessonTitle      String    @map("lesson_title") @db.VarChar(255)
+  topicId          Int?      @map("topic_id")
+  topicTitle       String?   @map("topic_title") @db.VarChar(255)
+  difficulty       String    @default("beginner") @db.VarChar(32)
+  questionCount    Int       @default(5) @map("question_count")
+  status           String    @default("draft") @db.VarChar(24)
+  publishedAt      DateTime? @map("published_at")
+  insightsJson     Json?     @map("insights_json")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  teacher User            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  board   Board?          @relation(fields: [boardId], references: [id])
+  grade   BoardGrade      @relation(fields: [gradeId], references: [id])
+  subject Subject?        @relation(fields: [subjectId], references: [id])
+  unit    CurriculumUnit? @relation(fields: [curriculumUnitId], references: [id])
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+  recs      StudentLearningRec[]
+
+  @@index([teacherId, status])
+  @@index([gradeId, status])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id                Int      @id @default(autoincrement())
+  quizId            Int      @map("quiz_id")
+  sortOrder         Int      @default(0) @map("sort_order")
+  type              String   @default("mcq") @db.VarChar(24)
+  prompt            String   @db.Text
+  options           Json?
+  correctAnswer     String   @map("correct_answer") @db.Text
+  explanation       String   @db.Text
+  topicTitle        String?  @map("topic_title") @db.VarChar(255)
+  misconceptionHint String?  @map("misconception_hint") @db.Text
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  quiz    Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers QuizAttemptAnswer[]
+
+  @@index([quizId, sortOrder])
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id            Int       @id @default(autoincrement())
+  quizId        Int       @map("quiz_id")
+  studentId     Int       @map("student_id")
+  status        String    @default("in_progress") @db.VarChar(24)
+  currentIndex  Int       @default(0) @map("current_index")
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  scorePercent  Decimal?  @map("score_percent") @db.Decimal(5, 2)
+  correctCount  Int       @default(0) @map("correct_count")
+  totalTimeMs   Int       @default(0) @map("total_time_ms")
+  summaryJson   Json?     @map("summary_json")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  quiz    Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  student User                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers QuizAttemptAnswer[]
+
+  @@unique([quizId, studentId])
+  @@index([studentId, status])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id                 Int      @id @default(autoincrement())
+  attemptId          Int      @map("attempt_id")
+  questionId         Int      @map("question_id")
+  firstAnswer        String?  @map("first_answer") @db.Text
+  firstIsCorrect     Boolean? @map("first_is_correct")
+  latestAnswer       String?  @map("latest_answer") @db.Text
+  isCorrect          Boolean  @default(false) @map("is_correct")
+  timeMs             Int      @default(0) @map("time_ms")
+  hintCount          Int      @default(0) @map("hint_count")
+  incorrectAttempts  Int      @default(0) @map("incorrect_attempts")
+  revealed           Boolean  @default(false)
+  misconception      String?  @db.VarChar(500)
+  tutorThread        Json?    @map("tutor_thread")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  attempt  QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("quiz_attempt_answers")
+}
+
+model StudentLearningRec {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @map("student_id")
+  teacherId Int      @map("teacher_id")
+  quizId    Int?     @map("quiz_id")
+  subject   String   @db.VarChar(128)
+  lesson    String?  @db.VarChar(255)
+  topic     String?  @db.VarChar(255)
+  reason    String   @db.Text
+  status    String   @default("open") @db.VarChar(24)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  student User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  quiz    Quiz? @relation(fields: [quizId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, status])
+  @@map("student_learning_recs")
+}

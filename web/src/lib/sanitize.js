@@ -1,0 +1,26 @@
+export function sanitizeMathForSpeech(text) {
+  if (text == null || typeof text !== 'string') return ''
+  let t = text
+  t = t.replace(/\\\(/g, ' ')
+  t = t.replace(/\\\)/g, ' ')
+  t = t.replace(/\\\[/g, ' ')
+  t = t.replace(/\\\]/g, ' ')
+  t = t.replace(/\\text\{([^}]*)\}/gi, '$1')
+  t = t.replace(/\\mathrm\{([^}]*)\}/gi, '$1')
+  t = t.replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '$1 over $2')
+  t = t.replace(/\\times/gi, ' times ')
+  t = t.replace(/\\cdot/gi, ' times ')
+  t = t.replace(/\\div/gi, ' divided by ')
+  t = t.replace(/\\pm/gi, ' plus or minus ')
+  t = t.replace(/\\leq/gi, ' is less than or equal to ')
+  t = t.replace(/\\geq/gi, ' is greater than or equal to ')
+  t = t.replace(/\\neq/gi, ' is not equal to ')
+  t = t.replace(/\\approx/gi, ' approximately ')
+  t = t.replace(/\\infty/gi, ' infinity ')
+  t = t.replace(/\\sqrt\{([^}]*)\}/g, ' square root of $1 ')
+  t = t.replace(/\\sqrt/gi, ' square root of ')
+  t = t.replace(/\\\\/g, ' ')
+  t = t.replace(/\\([a-zA-Z]+)/g, ' ')
+  t = t.replace(/\\/g, ' ')
+  return t.replace(/\s+/g, ' ').trim()
+}

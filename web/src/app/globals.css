@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2563eb;
+  --color-brand-dark: #1e3a8a;
+  --color-teal: #0ea5e9;
+  --color-teal-light: #eff6ff;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply min-h-screen bg-white text-[#0b1220] font-sans antialiased;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    @apply text-brand no-underline underline-offset-[3px] hover:underline;
+  }
+}
+
+@layer components {
+  .spinner {
+    @apply inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin;
+  }
+
+  .btn-gradient {
+    background-image: linear-gradient(135deg, #2563eb, color-mix(in srgb, #2563eb, #0ea5e9 45%));
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+  }
+
+  .btn-gradient:hover {
+    background-image: linear-gradient(135deg, #1d4ed8, color-mix(in srgb, #1d4ed8, #0ea5e9 45%));
+  }
+
+  .btn-gradient:active {
+    background-image: linear-gradient(135deg, #1e3a8a, color-mix(in srgb, #1e3a8a, #0ea5e9 45%));
+  }
+}
+
+@keyframes auth-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-auth-fade {
+  animation: auth-fade-in 220ms ease-out;
+}

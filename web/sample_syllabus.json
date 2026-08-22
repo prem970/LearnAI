@@ -1,0 +1,794 @@
+[
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Mathematics",
+      "unit": "Ratios and Proportional Relationships",
+      "topics": [
+        "Computing unit rates with fractions",
+        "Recognizing proportional relationships in tables and graphs",
+        "Equations of proportional relationships",
+        "Solving multistep ratio and percent problems",
+        "Calculating simple interest, tax, markups and markdowns",
+        "Gratuities, commissions, and percent error"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Mathematics",
+      "unit": "The Number System",
+      "topics": [
+        "Adding and subtracting rational numbers",
+        "Multiplying and dividing rational numbers",
+        "Converting fractions to decimals",
+        "Terminating and repeating decimals",
+        "Real-world problems with the four operations on rational numbers"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Mathematics",
+      "unit": "Expressions and Equations",
+      "topics": [
+        "Adding, subtracting, and factoring linear expressions",
+        "Understanding equivalent expressions",
+        "Solving multi-step real-life problems with positive and negative rational numbers",
+        "Constructing simple equations (px + q = r)",
+        "Solving and graphing simple inequalities (px + q > r or px + q < r)",
+        ""
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Mathematics",
+      "unit": "Geometry",
+      "topics": [
+        "Scale drawings of geometric figures",
+        "Drawing geometric shapes with given conditions",
+        "Constructing triangles from three measures of angles or sides",
+        "Cross-sections of 3D figures",
+        "",
+        "Area and circumference of a circle",
+        "Supplementary, complementary, vertical, and adjacent angles",
+        "Area, volume, and surface area of 2D and 3D objects"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Mathematics",
+      "unit": "Statistics and Probability",
+      "topics": [
+        "Understanding random sampling",
+        "Drawing inferences from random samples",
+        "Comparing two populations using measures of center and variability",
+        "Understanding probability of chance events (0 to 1 scale)",
+        "Approximating probability from data",
+        "Developing uniform probability models",
+        "Finding probabilities of compound events (tree diagrams, tables)",
+        "Tree diagram for probability"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "English Language Arts",
+      "unit": "Reading Literature",
+      "topics": [
+        "Citing textual evidence to support analysis",
+        "Determining a theme or central idea of a text",
+        "Analyzing how elements of a story or drama interact",
+        "Determining the meaning of words and phrases (figurative language)",
+        "Analyzing how form or structure contributes to meaning",
+        "Comparing and contrasting a written story to its audio or filmed version"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "English Language Arts",
+      "unit": "Reading Informational Text",
+      "topics": [
+        "Citing several pieces of textual evidence",
+        "Determining two or more central ideas",
+        "Analyzing interactions between individuals, events, and ideas",
+        "Determining author's point of view or purpose",
+        "Evaluating arguments and specific claims in a text",
+        "Comparing and contrasting authors' presentations of the same event"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "English Language Arts",
+      "unit": "Writing",
+      "topics": [
+        "Writing arguments with clear reasons and relevant evidence",
+        "Writing informative/explanatory texts to convey complex ideas",
+        "Writing narratives to develop real or imagined experiences",
+        "Conducting short research projects",
+        "Gathering relevant information from multiple print and digital sources",
+        "Using citations to avoid plagiarism"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Science",
+      "unit": "From Molecules to Organisms: Structures and Processes",
+      "topics": [
+        "Cell theory and the structure of cells",
+        "Plant vs. animal cell organelles",
+        "Plant cell vs animal cell diagram",
+        "Levels of organization (Cells to Organ Systems)",
+        "The digestive, respiratory, and circulatory systems",
+        "Photosynthesis and cellular respiration",
+        "Photosynthesis and cellular respiration cycle"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Science",
+      "unit": "Ecosystems: Interactions, Energy, and Dynamics",
+      "topics": [
+        "Biotic and abiotic factors in ecosystems",
+        "Resource availability and population dynamics",
+        "Symbiotic relationships (Mutualism, Commensalism, Parasitism)",
+        "Food webs and the flow of energy",
+        "Ecological food web diagram",
+        "Matter cycling in ecosystems (Water, Carbon, Nitrogen cycles)",
+        "Evaluating biodiversity and human impact"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Science",
+      "unit": "Earth's Systems and History",
+      "topics": [
+        "The rock cycle (Igneous, Sedimentary, Metamorphic)",
+        "The geological rock cycle",
+        "Plate tectonics and continental drift",
+        "Earthquakes, volcanoes, and seismic waves",
+        "Geologic time scale and the fossil record",
+        "Weathering, erosion, and deposition"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Social Studies",
+      "unit": "World Geography and Cultures",
+      "topics": [
+        "Five themes of geography (Location, Place, Human-Environment Interaction, Movement, Region)",
+        "Reading physical and political maps",
+        "Impact of climate and geography on human settlement",
+        "Cultural diffusion and globalization",
+        "Demographics, population density, and migration patterns",
+        "Economic systems (Market, Command, Traditional, Mixed)"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Social Studies",
+      "unit": "Early Civilizations and Empires",
+      "topics": [
+        "The Agricultural Revolution",
+        "Mesopotamia and the Fertile Crescent",
+        "Ancient Egypt and the Nile River Valley",
+        "Ancient Greece: Democracy and culture",
+        "The Roman Republic and Empire",
+        "The rise and spread of major world religions",
+        "The Middle Ages and feudalism"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Computer Science",
+      "unit": "Algorithms and Programming",
+      "topics": [
+        "Designing algorithms with flowcharts and pseudocode",
+        "Variables and data types",
+        "Control structures (conditionals and loops)",
+        "Decomposing problems into sub-problems",
+        "Creating user interfaces for simple applications",
+        "Testing and debugging code"
+      ]
+    },
+    {
+      "board": "US Curriculum / College Board",
+      "grade": "Grade 7",
+      "subject": "Computer Science",
+      "unit": "Impacts of Computing",
+      "topics": [
+        "Digital citizenship and online safety",
+        "Cybersecurity fundamentals (passwords, encryption)",
+        "The impact of computing on society and economy",
+        "Bias in algorithms and artificial intelligence",
+        "Copyright, intellectual property, and open-source software"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Mathematics",
+      "unit": "The Triangle and its Properties",
+      "topics": [
+        "Medians of a triangle",
+        "Altitudes of a triangle",
+        "Exterior angle of a triangle and its property",
+        "Angle sum property of a triangle",
+        "Two special triangles: Equilateral and Isosceles",
+        "Sum of the lengths of two sides of a triangle",
+        "Right-angled triangles and Pythagoras property",
+        "Pythagoras theorem demonstration"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Mathematics",
+      "unit": "Comparing Quantities",
+      "topics": [
+        "Equivalent ratios",
+        "Percentage: Another way of comparing quantities",
+        "Converting fractional numbers to percentage",
+        "Converting decimals to percentage",
+        "Use of percentages (Profit and Loss)",
+        "Charge given on borrowed money (Simple Interest)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Mathematics",
+      "unit": "Data Handling",
+      "topics": [
+        "Collecting and organizing data",
+        "Representative values (Arithmetic Mean, Range)",
+        "Mode of large data",
+        "Median",
+        "Use of bar graphs with a different purpose",
+        "Double bar graph",
+        "Chance and probability"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Science",
+      "unit": "Nutrition in Plants and Animals",
+      "topics": [
+        "Mode of nutrition in plants",
+        "Photosynthesis: Food making process in plants",
+        "Photosynthesis process in a leaf",
+        "Other modes of nutrition in plants (Parasites, Saprotrophs)",
+        "Digestion in humans (Alimentary canal and secretory glands)",
+        "The human digestive system",
+        "Digestion in grass-eating animals (Ruminants)",
+        "Feeding and digestion in Amoeba diagram"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Science",
+      "unit": "Acids, Bases and Salts",
+      "topics": [
+        "Acids and bases",
+        "Natural indicators around us (Litmus, Turmeric, China Rose)",
+        "Neutralisation",
+        "Neutralisation in everyday life (Indigestion, Ant bite, Soil treatment)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Science",
+      "unit": "Electric Current and its Effects",
+      "topics": [
+        "Symbols of electric components",
+        "Heating effect of electric current",
+        "Electric fuses",
+        "Magnetic effect of electric current",
+        "Electromagnet",
+        "Electric bell",
+        "Electric bell circuit diagram diagram"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Social Science",
+      "unit": "Our Pasts - II (History)",
+      "topics": [
+        "Tracing changes through a thousand years",
+        "New Kings and Kingdoms (Cholas, Rashtrakutas)",
+        "The Delhi Sultans (12th to 15th Century)",
+        "The Mughal Empire (Military campaigns and administration)",
+        "Tribes, Nomads and Settled Communities",
+        "Devotional Paths to the Divine (Bhakti and Sufi movements)",
+        "The Making of Regional Cultures",
+        "Eighteenth-Century Political Formations"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Social Science",
+      "unit": "Our Environment (Geography)",
+      "topics": [
+        "Environment (Natural and Human)",
+        "Inside Our Earth (Crust, Mantle, Core)",
+        "Earth's interior layers",
+        "Rocks and Minerals (Igneous, Sedimentary, Metamorphic)",
+        "The geological rock cycle",
+        "Our Changing Earth (Earthquakes, Volcanoes, Work of rivers/ice/wind)",
+        "Air (Composition and structure of the atmosphere)",
+        "Water (Ocean circulation, Tides, Currents)",
+        "Life in the Deserts (Sahara and Ladakh)",
+        "Life in the Oceans (Pacific and Indian Oceans)",
+        "Life in the Mountains (Himalayas and Andes)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Social Science",
+      "unit": "Social and Political Life - II (Civics)",
+      "topics": [
+        "On Equality (Universal Adult Franchise)",
+        "Role of the Government in Health (Public vs. Private healthcare)",
+        "How the State Government Works (MLAs and Legislative Assembly)",
+        "Growing up as Boys and Girls (Gender roles)",
+        "Women Change the World (Education and women's movements)",
+        "Understanding Media",
+        "Markets Around Us",
+        "A Shirt in the Market (Chain of markets)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "English",
+      "unit": "Honeycomb (Literature & Reading)",
+      "topics": [
+        "Reading comprehension and inferring meaning",
+        "Character sketch and theme analysis",
+        "Poetic devices (Simile, Metaphor, Personification, Alliteration)",
+        "Three Questions (Prose)",
+        "The Squirrel (Poem)",
+        "A Gift of Chappals (Prose)",
+        "The Rebel (Poem)",
+        "Gopal and the Hilsa Fish (Prose comic)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "English",
+      "unit": "Grammar and Writing Skills",
+      "topics": [
+        "Tenses (Simple, Continuous, Perfect)",
+        "Active and Passive Voice",
+        "Reported Speech (Direct and Indirect)",
+        "Subject-Verb Agreement",
+        "Formal and Informal Letter Writing",
+        "Article and Speech Writing",
+        "Story Writing from outlines"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Hindi",
+      "unit": "Vasant Bhag - 2 (Literature)",
+      "topics": [
+        "Hum Panchhi Unmukt Gagan Ke (Kavita)",
+        "Dadi Maa (Kahani)",
+        "Himalay Ki Betiyan (Nibandh)",
+        "Kathputli (Kavita)",
+        "Mithaiwala (Kahani)",
+        "Rakt Aur Hamara Sharir (Nibandh)",
+        "Apam Pathan (Reading Comprehension)"
+      ]
+    },
+    {
+      "board": "CBSE",
+      "grade": "Class 7",
+      "subject": "Hindi",
+      "unit": "Vyakaran (Grammar)",
+      "topics": [
+        "Varn Vichar (Phonology)",
+        "Sangya, Sarvanam, Visheshan (Nouns, Pronouns, Adjectives)",
+        "Kriya and Kaal (Verbs and Tenses)",
+        "Viram Chinh (Punctuation)",
+        "Paryayavachi and Vilom Shabd (Synonyms and Antonyms)",
+        "Muhavare and Lokoktiyan (Idioms and Proverbs)",
+        "Patra Lekhan (Letter Writing)",
+        "Anuched Lekhan (Paragraph Writing)"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Mathematics",
+      "unit": "Number Systems and Equivalency",
+      "topics": [
+        "Rational numbers and integers",
+        "Operations with fractions and decimals",
+        "Ratio, proportion, and scaling",
+        "Percentages in real-world contexts",
+        "Scientific notation (Standard form)"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Mathematics",
+      "unit": "Patterns and Algebraic Expressions",
+      "topics": [
+        "Recognizing and generalizing number patterns",
+        "Formulating algebraic expressions",
+        "Simplifying expressions (collecting like terms)",
+        "Solving linear equations with one variable",
+        "Solving inequalities and graphing on a number line"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Mathematics",
+      "unit": "Space, Shape and Measurement",
+      "topics": [
+        "Properties of 2D polygons and 3D polyhedra",
+        "Area and perimeter of compound shapes",
+        "Volume and surface area of prisms and cylinders",
+        "Geometric transformations (Translation, Reflection, Rotation)",
+        "Geometric transformations translation reflection rotation",
+        "Angles in parallel lines and transversals"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Sciences",
+      "unit": "Matter and Particle Theory (Chemistry Focus)",
+      "topics": [
+        "The particle model of matter",
+        "Particle arrangement in solids, liquids, and gases",
+        "Changes of state and thermal energy",
+        "Elements, compounds, and mixtures",
+        "The Periodic Table (Introduction to groups and periods)",
+        "Physical vs. chemical changes",
+        "Separation techniques (Filtration, distillation, chromatography)"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Sciences",
+      "unit": "Cells and Systems (Biology Focus)",
+      "topics": [
+        "Characteristics of living organisms (MRS GREN)",
+        "Cell theory and microscopy",
+        "Structure and function of plant and animal cells",
+        "Plant cell vs animal cell diagram",
+        "Specialized cells and their adaptations",
+        "Human organ systems (Digestive and Respiratory systems)",
+        "The human respiratory system",
+        "The human respiratory system diagram"
+        ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Sciences",
+      "unit": "Forces and Energy Transfer (Physics Focus)",
+      "topics": [
+        "Types of forces (Contact and non-contact)",
+        "Balanced and unbalanced forces",
+        "Calculating speed, distance, and time",
+        "Forms of energy (Kinetic, potential, thermal, chemical)",
+        "The law of conservation of energy",
+        "Energy transfer diagrams (Sankey diagrams)"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Individuals and Societies",
+      "unit": "Time, Place and Space (Geography Focus)",
+      "topics": [
+        "Map reading skills (Grid references, scale, contours)",
+        "Contour lines on a topographic map",
+        "Types of settlement and land use",
+        "Population distribution and density",
+        "Push and pull factors of human migration",
+        "Impact of climate change on coastal environments"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Individuals and Societies",
+      "unit": "Systems and Global Connections (History/Civics Focus)",
+      "topics": [
+        "Characteristics of early river valley civilizations",
+        "The Silk Road and historical trade networks",
+        "Cultural diffusion and exchange of ideas",
+        "Forms of government (Democracy, Monarchy, Dictatorship)",
+        "Human rights and the UN Declaration"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Language and Literature",
+      "unit": "Narrative and Perspective",
+      "topics": [
+        "Elements of a plot (Exposition, climax, resolution)",
+        "Characterization and character development",
+        "First-person vs. third-person narrative perspectives",
+        "Analyzing themes in coming-of-age literature",
+        "Writing a creative narrative"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Language and Literature",
+      "unit": "Media and Persuasion",
+      "topics": [
+        "Rhetorical devices (Ethos, Pathos, Logos)",
+        "Target audience and purpose in media",
+        "Analyzing bias in news articles",
+        "Structuring a persuasive essay",
+        "Visual literacy (Analyzing advertisements and propaganda)"
+      ]
+    },
+    {
+      "board": "International Baccalaureate",
+      "grade": "MYP Year 2 (Grade 7)",
+      "subject": "Design",
+      "unit": "The Design Cycle",
+      "topics": [
+        "Inquiring and Analyzing: Formulating a design brief",
+        "Developing Ideas: Creating design specifications and sketches",
+        "Creating the Solution: Following a logical plan and manufacturing",
+        "Evaluating: Testing the product against the specification",
+        "The IB MYP Design Cycle",
+        "The IB MYP Design Cycle diagram"
+      ]
+    },
+{
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Mathematics",
+    "unit": "Algebra and Equations",
+    "topics": [
+      "Expanding brackets and factorizing algebraic expressions",
+      "Solving linear equations with variables on both sides",
+      "Substituting into and rearranging formulae",
+      "Generating terms of a sequence from a position-to-term rule",
+      "Plotting and interpreting straight-line graphs (y = mx + c)"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Mathematics",
+    "unit": "Geometry and Measure",
+    "topics": [
+      "Alternate and corresponding angles in parallel lines",
+      "Interior and exterior angles of polygons",
+      "Interior and exterior angles of a regular polygon",
+      "Area of a circle and trapezium",
+      "Volume and surface area of prisms and cylinders",
+      "Transformations (Translation, Rotation, Reflection, Enlargement)"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Science",
+    "unit": "Biology: Human Body and Diet",
+    "topics": [
+      "The human respiratory system and gas exchange",
+      "The human respiratory system",
+      "Aerobic and anaerobic respiration",
+      "A balanced diet and the role of nutrients",
+      "The human digestive system and absorption",
+      "The human digestive system",
+      "The function of enzymes in digestion"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Science",
+    "unit": "Chemistry: Materials and their Structure",
+    "topics": [
+      "Atomic structure (protons, neutrons, electrons)",
+      "Bohr model of an atom",
+      "The Periodic Table: Groups and Periods",
+      "Elements, mixtures, and compounds",
+      "Writing chemical symbols and simple formulae",
+      "Separation techniques (Chromatography, Fractional distillation)"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Science",
+    "unit": "Physics: Forces and Energy",
+    "topics": [
+      "Calculating speed and velocity",
+      "Interpreting distance-time graphs",
+      "Distance-time graph",
+      "The turning effect of a force (Moments)",
+      "Pressure in liquids and gases",
+      "Energy transfer and the principle of conservation of energy"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "English",
+    "unit": "Reading and Analyzing Texts",
+    "topics": [
+      "Extracting explicit and implicit meanings from texts",
+      "Analyzing a writer's effects and language choices",
+      "Recognizing bias, perspective, and tone in non-fiction",
+      "Exploring themes and structural devices in poetry",
+      "Comparing two texts on a similar theme"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "English",
+    "unit": "Writing for Purpose and Audience",
+    "topics": [
+      "Writing concise and accurate summaries",
+      "Structuring a persuasive argument or speech",
+      "Using rhetorical devices (Rule of three, rhetorical questions)",
+      "Narrative writing: Setting the scene and character development",
+      "Varying sentence structures for effect and pacing"
+    ]
+  },
+  {
+    "board": "Cambridge (CAIE)",
+    "grade": "Lower Secondary (Stage 8)",
+    "subject": "Computing",
+    "unit": "Programming and Logic",
+    "topics": [
+      "Designing algorithms using flowcharts and pseudocode",
+      "Flowchart symbols",
+      "Variables and data types in programming",
+      "Selection programming (IF/ELSE statements)",
+      "Iteration programming (FOR and WHILE loops)",
+      "Debugging and testing code"
+    ]
+  },
+  {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Mathematics",
+      "unit": "Number",
+      "topics": [
+        "Highest Common Factor (HCF) and Lowest Common Multiple (LCM)",
+        "Powers, roots, and rules of indices",
+        "Standard form for very large and very small numbers",
+        "Calculating percentage change (profit and loss)",
+        "Dividing quantities into a given ratio",
+        "Direct and inverse proportion"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Mathematics",
+      "unit": "Algebra",
+      "topics": [
+        "Expanding single and double brackets",
+        "Factorising algebraic expressions",
+        "Solving linear equations with unknowns on both sides",
+        "Finding the nth term of a linear sequence",
+        "Plotting straight-line graphs from the equation y = mx + c"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Mathematics",
+      "unit": "Geometry and Measures",
+      "topics": [
+        "Angles in parallel lines (alternate, corresponding, allied)",
+        "Calculating interior and exterior angles of regular polygons",
+        "Interior and exterior angles of a regular polygon",
+        "Calculating the area and circumference of a circle",
+        "Volume and surface area of prisms and cylinders",
+        "Transformations on a Cartesian plane (translation, rotation, reflection, enlargement)"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Science (Biology)",
+      "unit": "Health, Disease and Lifestyle",
+      "topics": [
+        "Nutrients and the components of a balanced diet",
+        "Chemical tests for starch, lipids, proteins, and reducing sugars",
+        "The human digestive system and the role of enzymes",
+        "The human digestive system",
+        "The structure and function of the human respiratory system",
+        "The human respiratory system",
+        "Aerobic vs. anaerobic respiration in humans and yeast",
+        "The effects of recreational drugs and alcohol on health"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Science (Chemistry)",
+      "unit": "The Periodic Table and Materials",
+      "topics": [
+        "The structure of an atom (protons, neutrons, electrons)",
+        "Bohr model of an atom",
+        "Understanding the Periodic Table (groups and periods)",
+        "The modern Periodic Table of Elements",
+        "Properties and trends of Group 1 (Alkali metals) and Group 7 (Halogens)",
+        "Writing chemical formulae and word equations",
+        "Displacement reactions of metals and halogens",
+        "Endothermic and exothermic reactions"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "Science (Physics)",
+      "unit": "Energy and Motion",
+      "topics": [
+        "Energy stores and energy transfers",
+        "The law of conservation of energy",
+        "Calculating speed, distance, and time",
+        "Plotting and interpreting distance-time graphs",
+        "Distance-time graph",
+        "Moments and the principle of turning forces",
+        "Calculating fluid pressure and atmospheric pressure"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "English",
+      "unit": "Reading Non-Fiction and Media",
+      "topics": [
+        "Identifying the purpose, audience, and format of a text",
+        "Analyzing the use of rhetorical devices in speeches",
+        "Understanding explicit and implicit bias in news articles",
+        "Evaluating how writers use language for effect",
+        "Summarizing and synthesizing information from multiple sources"
+      ]
+    },
+    {
+      "board": "Pearson Edexcel",
+      "grade": "Lower Secondary (Year 8)",
+      "subject": "English",
+      "unit": "Writing to Argue and Persuade",
+      "topics": [
+        "Structuring a logical and cohesive argument",
+        "Using persuasive techniques (e.g., statistics, emotive language, rule of three)",
+        "Writing formal letters and opinion editorials",
+        "Varying sentence length and structure for dramatic effect",
+        "Proofreading for accurate grammar, punctuation, and spelling"
+      ]
+    }
+  ]
