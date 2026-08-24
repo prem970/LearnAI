@@ -30,6 +30,17 @@ import LogoutReviewModal from '../components/LogoutReviewModal.jsx'
 import StudentQuizHub from '../components/StudentQuizHub.jsx'
 import { sanitizeMathForSpeech } from '../utils/speechTextSanitize.js'
 import { filterCurriculumForTeacher, teacherSubjectList } from '../lib/teacherSubjects.js'
+import {
+  BoardShell,
+  BoardHeader,
+  FlapTab,
+  FlapPanel,
+  FlapPanelHead,
+  FlapRow,
+  FlapButton,
+  FlapInput,
+  IconLogout,
+} from '../components/ui/Board.jsx'
 
 /** Dev: fixed TTS gender for known demo teachers (lookup keys lowercase). */
 const DEV_TEACHER_VOICE_BY_NAME = {
@@ -120,15 +131,17 @@ function pickTtsMaleFemaleVoices(voices) {
   return { male, female }
 }
 
-// Sample logo placeholder (user will replace later)
+
 function LogoPlaceholder() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] flex items-center justify-center text-white font-bold text-sm">
+    <span className="inline-flex items-center gap-2">
+      <span className="w-7 h-7 border border-[var(--board-rule)] bg-[var(--flap-face)] flex items-center justify-center font-[family-name:var(--font-flap)] text-xs font-bold text-[var(--flap-amber)]">
         L
-      </div>
-      <span className="font-[700] text-[#0b1220] text-lg tracking-tight">LearnAI</span>
-    </div>
+      </span>
+      <span className="font-[family-name:var(--font-flap)] text-[15px] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)]">
+        LearnAI
+      </span>
+    </span>
   )
 }
 
@@ -214,7 +227,7 @@ function StudentDashboard() {
   const [subjectOpen, setSubjectOpen] = useState(true)
   const [lessonOpen, setLessonOpen] = useState(false)
   const [progressOpen, setProgressOpen] = useState(false)
-  const [homeworkPanelOpen, setHomeworkPanelOpen] = useState(true)
+  const [homeworkPanelOpen, setHomeworkPanelOpen] = useState(false)
   const [chatAttachOpen, setChatAttachOpen] = useState(false)
   const [homeworkUploaderKey, setHomeworkUploaderKey] = useState(0)
   const [homeworkSessionActive, setHomeworkSessionActive] = useState(false)
@@ -1154,97 +1167,121 @@ function StudentDashboard() {
       data?.answer || error?.message || 'Could not generate summary. Please try again.'
     )
   }
-
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#eff6ff]">
-      {/* ─── Top header ───────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 bg-white border-b border-slate-200/80 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <LogoPlaceholder />
-          </div>
-          <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1">
-            {[
-              { id: 'home', label: 'Home' },
-              { id: 'learn', label: 'Learn through Chat' },
-              { id: 'quiz', label: 'Quiz' },
-            ].map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setLearningMode(m.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium border-none cursor-pointer ${
-                  learningMode === m.id ? 'bg-[#2563eb] text-white' : 'bg-transparent text-slate-600'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="text-right">
-              <p className="text-sm font-semibold text-[#0b1220]">Welcome, {displayName}</p>
-              <p className="text-xs text-slate-500">
-                {gradeLabel ? `Grade: ${gradeLabel}` : 'Grade: —'}
-                {boardLabel ? ` · Board: ${boardLabel}` : ''}
+    <BoardShell viewport={learningMode === 'learn'}>
+      <BoardHeader
+        brand={<LogoPlaceholder />}
+        sub="Concourse · Student"
+        actions={
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right leading-tight">
+              <p className="font-[family-name:var(--font-flap)] text-[12px] font-semibold tracking-[0.08em] uppercase text-[var(--flap-ink)] m-0">
+                {displayName}
+              </p>
+              <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.14em] uppercase text-[var(--flap-mute)] m-0">
+                {gradeLabel ? `Grade ${gradeLabel}` : 'Grade —'}
+                {boardLabel ? ` · ${boardLabel}` : ''}
               </p>
             </div>
             <button
               type="button"
               onClick={handleLogoutClick}
-              className="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 text-[var(--flap-mute)] hover:text-[var(--flap-ink)] border-none bg-transparent cursor-pointer"
+              aria-label="Log out"
             >
-              Log out
+              <IconLogout />
             </button>
           </div>
-        </div>
-      </header>
+        }
+      >
+        <nav className="hidden md:flex items-center gap-1 ml-2" aria-label="Learning mode">
+          {[
+            { id: 'home', label: 'Home' },
+            { id: 'learn', label: 'Learn' },
+            { id: 'quiz', label: 'Quiz' },
+          ].map((m) => (
+            <FlapTab key={m.id} active={learningMode === m.id} onClick={() => setLearningMode(m.id)}>
+              {m.label}
+            </FlapTab>
+          ))}
+        </nav>
+      </BoardHeader>
+
+      <div className="md:hidden flex gap-1 px-3 py-2 overflow-x-auto border-b border-[var(--board-rule)] bg-[var(--board-steel-deep)] shrink-0">
+        {[
+          { id: 'home', label: 'Home' },
+          { id: 'learn', label: 'Learn' },
+          { id: 'quiz', label: 'Quiz' },
+        ].map((m) => (
+          <FlapTab key={m.id} active={learningMode === m.id} onClick={() => setLearningMode(m.id)}>
+            {m.label}
+          </FlapTab>
+        ))}
+      </div>
 
       {learningMode === 'home' && (
-        <div className="flex-1 overflow-y-auto max-w-[1100px] w-full mx-auto px-4 md:px-6 py-8">
-          <h1 className="text-2xl font-[800] text-[#0b1220]">How do you want to learn today?</h1>
-          <p className="text-slate-500 mt-2">Chat with an AI teacher, or take a quiz assigned to your grade.</p>
+        <div className="max-w-[1100px] w-full mx-auto px-4 md:px-6 py-8">
+          <h1 className="font-[family-name:var(--font-flap)] text-3xl md:text-4xl font-bold tracking-[0.04em] uppercase text-[var(--flap-ink)] m-0">
+            How do you want to learn today?
+          </h1>
+          <p className="text-[var(--flap-mute)] mt-2 text-sm leading-relaxed m-0">
+            Chat with an AI teacher, or take a quiz assigned to your grade.
+          </p>
           {learningRecs[0] ? (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm flex items-start gap-3">
+            <div className="mt-4 border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-4 py-3 text-sm flex items-start gap-3">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[#0b1220]">Recommended next</p>
-                <p className="text-slate-600 mt-1">{learningRecs[0].reason}</p>
+                <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.14em] uppercase text-[var(--flap-amber)] m-0">
+                  Recommended next
+                </p>
+                <p className="text-[var(--flap-mute)] mt-1 m-0">{learningRecs[0].reason}</p>
               </div>
               <button
                 type="button"
                 onClick={dismissFollowUp}
-                className="shrink-0 rounded-lg px-2 py-1 text-lg leading-none text-amber-800/70 hover:bg-amber-100 hover:text-amber-950"
+                className="shrink-0 px-2 py-1 text-[var(--flap-mute)] hover:text-[var(--flap-ink)] border-none bg-transparent cursor-pointer text-lg leading-none"
                 aria-label="Dismiss recommendation"
               >
                 ×
               </button>
             </div>
           ) : null}
-          <div className="grid md:grid-cols-2 gap-4 mt-8">
+          <div className="grid md:grid-cols-2 gap-3 mt-8">
             <button
               type="button"
               onClick={() => setLearningMode('learn')}
-              className="text-left rounded-3xl border border-slate-100 bg-white p-6 shadow-sm hover:border-[#2563eb]/40 cursor-pointer"
+              className="text-left border border-[var(--board-rule)] bg-[var(--board-steel-deep)] p-5 hover:border-[var(--flap-amber)]/50 cursor-pointer"
             >
-              <p className="text-2xl">💬</p>
-              <p className="text-lg font-bold mt-3">Learn through Chat</p>
-              <p className="text-sm text-slate-500 mt-2">Ask questions, get guided explanations, and work through ideas with your AI teacher.</p>
+              <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.16em] uppercase text-[var(--flap-amber)] m-0">
+                Departures
+              </p>
+              <p className="font-[family-name:var(--font-flap)] text-lg font-semibold tracking-[0.06em] uppercase text-[var(--flap-ink)] mt-2 m-0">
+                Learn through Chat
+              </p>
+              <p className="text-sm text-[var(--flap-mute)] mt-2 m-0 leading-relaxed">
+                Ask questions, get guided explanations, and work through ideas with your AI teacher.
+              </p>
             </button>
             <button
               type="button"
               onClick={() => setLearningMode('quiz')}
-              className="text-left rounded-3xl border border-slate-100 bg-white p-6 shadow-sm hover:border-[#2563eb]/40 cursor-pointer"
+              className="text-left border border-[var(--board-rule)] bg-[var(--board-steel-deep)] p-5 hover:border-[var(--flap-amber)]/50 cursor-pointer"
             >
-              <p className="text-2xl">📝</p>
-              <p className="text-lg font-bold mt-3">Quiz</p>
-              <p className="text-sm text-slate-500 mt-2">Take assessments for your grade. After each answer, a tutor helps you understand why.</p>
+              <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.16em] uppercase text-[var(--flap-amber)] m-0">
+                Arrivals
+              </p>
+              <p className="font-[family-name:var(--font-flap)] text-lg font-semibold tracking-[0.06em] uppercase text-[var(--flap-ink)] mt-2 m-0">
+                Quiz
+              </p>
+              <p className="text-sm text-[var(--flap-mute)] mt-2 m-0 leading-relaxed">
+                Take assessments for your grade. After each answer, a tutor helps you understand why.
+              </p>
             </button>
           </div>
         </div>
       )}
 
       {learningMode === 'quiz' && (
-        <div className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto px-4 md:px-6 py-4 flex flex-col">
+        <div className="max-w-[1600px] w-full mx-auto px-4 md:px-6 py-4 flex flex-col">
           <StudentQuizHub
             onLearnTopic={() => {
               dismissFollowUp()
@@ -1255,837 +1292,853 @@ function StudentDashboard() {
       )}
 
       {learningMode === 'learn' && (
-      <main className="relative flex-1 flex min-h-0 overflow-hidden max-w-[1600px] w-full mx-auto px-4 md:px-6 py-4 gap-4">
-        {dashboardLoading && (
-          <div className="absolute inset-0 z-50">
-            <div className="absolute inset-0 bg-white/50 backdrop-blur-md" />
-            <div className="relative h-full flex items-center justify-center p-4">
-              <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white/95 shadow-xl px-6 py-5 text-center">
-                <p className="text-base font-semibold text-[#0b1220]">Loading curriculum...</p>
-                <p className="mt-1 text-sm text-slate-500">Please wait while we fetch your dashboard.</p>
-              </div>
-            </div>
-          </div>
-        )}
-        {!dashboardLoading && dashboardError && (
-          <div className="absolute top-[72px] left-0 right-0 z-50 px-4 md:px-6">
-            <div className="max-w-[1600px] mx-auto rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
-              {dashboardError}
-            </div>
-          </div>
-        )}
-        {/* Teacher Side — 60%, full height */}
-        <section className="flex-[3] min-w-0 flex flex-col flex-1 min-h-0 gap-4 relative">
-          {/* Top tool switcher — fills available height */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 flex-1 flex flex-col min-h-0 overflow-hidden">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                {[
-                  { id: 'teacher', label: 'Teacher', icon: '🧑‍🏫' },
-                  { id: 'mode', label: 'Mode', icon: '🎛️' },
-                  { id: 'difficulty', label: 'Level', icon: '🧠' },
-                  { id: 'learn', label: 'Learn', icon: '🎓' },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setTeacherTopTool(item.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                      teacherTopTool === item.id
-                        ? 'bg-[#2563eb] text-white shadow-md'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    } ${item.id === 'learn' && !canEnterLearn ? 'ring-1 ring-[#2563eb]/20' : ''}`}
-                    aria-pressed={teacherTopTool === item.id}
-                  >
-                    <span className="text-base leading-none">{item.icon}</span>
-                    <span className="hidden sm:inline">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 hidden md:inline">
-                  {selectedTeacher ? `Teacher: ${selectedTeacher.name}` : 'Select a teacher'}
-                </span>
-              </div>
-            </div>
-
-            {/* Tool panel (Teacher/Mode/Level only) */}
-            {teacherTopTool !== 'learn' && <div className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden">
-              {teacherTopTool === 'teacher' && (
-                <div className="flex flex-col min-h-0 flex-1 gap-2 overflow-hidden">
-                  {/* Search / sort / filter */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <input
-                      value={teacherSearch}
-                      onChange={(e) => setTeacherSearch(e.target.value)}
-                      placeholder="Search teachers…"
-                      className="px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/30 focus:border-[#2563eb]"
-                    />
-                    <select
-                      value={teacherSort}
-                      onChange={(e) => setTeacherSort(e.target.value)}
-                      className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm"
-                    >
-                      <option value="rating_desc">Sort: Rating (high → low)</option>
-                      <option value="rating_asc">Sort: Rating (low → high)</option>
-                      <option value="name_asc">Sort: Name (A → Z)</option>
-                    </select>
-                    <select
-                      value={teacherStyle}
-                      onChange={(e) => setTeacherStyle(e.target.value)}
-                      className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm"
-                    >
-                      {teacherStyles.map((style) => (
-                        <option key={style} value={style}>
-                          {style === 'all' ? 'Filter: All styles' : `Style: ${style}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-slate-500">
-                      Showing <span className="font-semibold">{filteredTeachers.length}</span>{' '}
-                      teacher{filteredTeachers.length === 1 ? '' : 's'}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTeacherSearch('')
-                        setTeacherStyle('all')
-                        setTeacherSort('rating_desc')
-                      }}
-                      className="text-xs font-semibold text-slate-600 hover:text-[#2563eb]"
-                    >
-                      Reset
-                    </button>
-                  </div>
-
-                  {/* List + Change Teacher in one scroll-contained block — no extra height when button appears */}
-                  <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                    <div className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
-                      {filteredTeachers.map((t) => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => handleSelectTeacher(t)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                            selectedTeacher?.id === t.id
-                              ? 'border-[#2563eb] bg-[#eff6ff] ring-1 ring-[#2563eb]/30'
-                              : 'border-slate-100 hover:bg-slate-50'
-                          }`}
-                        >
-                          {t.avatar_url ? (
-                            <img
-                              src={t.avatar_url}
-                              alt={t.name}
-                              className="w-12 h-12 rounded-full object-cover shrink-0 border border-slate-100"
-                              onError={(e) => { e.currentTarget.src = '' }}
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] flex items-center justify-center text-white font-semibold text-base shrink-0">
-                              {t.name.charAt(0)}
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-[#0b1220] truncate">{t.name}</p>
-                            <p className="text-xs text-slate-500 truncate">{t.school}</p>
-                            {teacherSubjectList(t).length ? (
-                              <p className="text-xs text-slate-500 truncate">
-                                {teacherSubjectList(t).join(' · ')}
-                              </p>
-                            ) : null}
-                            <p className="text-xs text-[#2563eb] mt-0.5">
-                              Style: {t.style} · ⭐ {teacherRatingSummary(t)}
-                            </p>
-                          </div>
-                          <div className="text-xs text-slate-400">
-                            {selectedTeacher?.id === t.id ? 'Selected' : 'Select'}
-                          </div>
-                        </button>
-                      ))}
-                      {filteredTeachers.length === 0 && (
-                        <div className="text-sm text-slate-400 italic px-2 py-2">
-                          No teachers match your search/filter.
-                        </div>
-                      )}
-                    </div>
-                    {selectedTeacher && (
-                      <div className="flex-shrink-0 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedTeacher(null)}
-                          className="w-full py-2 rounded-xl text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50"
-                        >
-                          Change Teacher
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {teacherTopTool === 'mode' && (
-                <div className="flex gap-2">
-                  {RESPONSE_MODES.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setResponseMode(m.id)}
-                      className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
-                        responseMode === m.id
-                          ? 'bg-[#2563eb] text-white shadow-md'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {teacherTopTool === 'difficulty' && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {DIFFICULTY_LEVELS.map((d) => (
-                    <button
-                      key={d.id}
-                      type="button"
-                      onClick={() => setDifficultyLevel(d.id)}
-                      className={`py-2 rounded-xl text-sm font-medium transition-all ${
-                        difficultyLevel === d.id
-                          ? 'bg-[#0ea5e9] text-white shadow-md'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>}
-            {/* Learn content — inside same card as tabs */}
-            {teacherTopTool === 'learn' && (
-            <div className="mt-3 flex-1 flex flex-col min-h-0">
-              {canEnterLearn ? (
-                <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[0.4fr_0.6fr] gap-4">
-                  {/* Avatar panel */}
-                  <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col items-center justify-center">
-                    {selectedTeacher?.avatar_url ? (
-                      <img
-                        src={selectedTeacher.avatar_url}
-                        alt={selectedTeacher.name}
-                        className="w-28 h-28 rounded-full object-cover border border-slate-100"
-                        onError={(e) => { e.currentTarget.src = '' }}
-                      />
-                    ) : (
-                      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] flex items-center justify-center text-white font-bold text-4xl">
-                        {selectedTeacher ? selectedTeacher.name.charAt(0) : '👩‍🏫'}
-                      </div>
-                    )}
-                    <p className="mt-3 text-sm font-semibold text-[#0b1220]">
-                      {selectedTeacher ? selectedTeacher.name : 'Select a teacher'}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {selectedTeacher ? selectedTeacher.school : 'Personalize explanations by teaching style'}
-                    </p>
-                    {selectedTeacher && (
-                      <p className="text-xs text-[#2563eb] mt-1">
-                        {selectedTeacher.style} · ⭐ {teacherRatingSummary(selectedTeacher)}
-                      </p>
-                    )}
-                    <div className="mt-4 w-full">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-                          <p className="text-[11px] text-slate-500">Response</p>
-                          <p className="text-sm font-semibold text-[#0b1220] capitalize">{responseMode}</p>
-                        </div>
-                        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-                          <p className="text-[11px] text-slate-500">Difficulty</p>
-                          <p className="text-sm font-semibold text-[#0b1220]">
-                            {DIFFICULTY_LEVELS.find((d) => d.id === difficultyLevel)?.label || 'Beginner'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Answers (60%) */}
-                  <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col min-h-0">
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div>
-                        <h3 className="text-sm font-semibold text-[#0b1220]">Teacher Answers</h3>
-                        <p className="text-xs text-slate-500">
-                          {selectedLesson ? `Lesson: ${selectedLesson.title}` : 'Select a lesson to begin'}
-                        </p>
-                      </div>
-                      {selectedLesson && (
-                        <button
-                          type="button"
-                          onClick={handleSummarize}
-                          disabled={summarizing || !qaThread.some((i) => i.answer)}
-                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#0ea5e9] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {summarizing ? 'Summarizing…' : 'Summarize'}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Answers feed */}
-                    <div className="flex-1 min-h-0 overflow-y-auto space-y-3 mb-4 pr-1">
-                      {qaThread.map((item) => (
-                        <div key={item.id} className="rounded-2xl border border-slate-100 overflow-hidden">
-                          <div className="px-4 py-3 bg-slate-50">
-                            <p className="text-[11px] text-slate-500">
-                              {item.homeworkPhoto ? 'Homework photo' : 'Student asked'}
-                            </p>
-                            {item.imagePreviewUrl ? (
-                              <div className="mt-2 mb-2 rounded-xl overflow-hidden border border-slate-200 bg-white max-w-xs">
-                                <img
-                                  src={item.imagePreviewUrl}
-                                  alt="Homework"
-                                  className="max-h-40 w-full object-contain"
-                                />
-                              </div>
-                            ) : null}
-                            <p className="text-sm font-medium text-[#0b1220]">{item.question}</p>
-                            <p className="text-[11px] text-slate-400 mt-1">
-                              Teacher: {item.teacher?.name || 'not selected'} · {item.responseMode} ·{' '}
-                              {DIFFICULTY_LEVELS.find((d) => d.id === item.difficultyLevel)?.label || 'Beginner'}
-                              {item.homeworkPhoto ? ' · hints only' : ''}
-                            </p>
-                          </div>
-                          <div className="px-4 py-3">
-                            {item.answer ? (
-                              item.responseMode === 'audio' ? (
-                                <>
-                                  {audioTextViewById[item.id] ? (
-                                    <div className="rounded-xl border border-[#0ea5e9]/20 bg-[#e0f2fe] p-3">
-                                      <div className="mb-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => setAudioTextViewById((prev) => ({ ...prev, [item.id]: false }))}
-                                          className="px-2.5 py-1.5 rounded-md text-xs font-medium bg-white border border-[#0ea5e9]/20 text-[#0ea5e9] hover:bg-[#f0f9ff]"
-                                        >
-                                          ← Back
-                                        </button>
-                                      </div>
-                                      <div className="text-sm text-slate-700 leading-relaxed">
-                                        <FormattedAnswerText text={item.answer} />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="rounded-xl border border-[#0ea5e9]/20 bg-[#e0f2fe] p-3 flex flex-wrap items-center gap-3">
-                                      <div className={`w-24 h-16 rounded-xl bg-gradient-to-br from-[#bae6fd] to-[#7dd3fc] flex items-center justify-center px-2 py-2 ${ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused ? 'audio-wave-cluster-active ring-1 ring-[#0ea5e9]/35' : ''}`}>
-                                        <div className="audio-wave-cluster">
-                                          {[0.45, 0.62, 0.8, 1, 0.8, 0.62, 0.45].map((factor, bar) => (
-                                            <span
-                                              key={bar}
-                                              className="audio-wave-bar"
-                                              style={{ '--wave-factor': factor, animationDelay: `${bar * 0.08}s` }}
-                                            />
-                                          ))}
-                                        </div>
-                                      </div>
-                                      <div className="flex-1 min-w-[220px]">
-                                        <p className="text-sm font-semibold text-[#0ea5e9] mb-2">Audio output</p>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                          <button
-                                            type="button"
-                                            onClick={() => handlePlayPauseToggle(item)}
-                                            disabled={ttsLoadingItemId === item.id}
-                                            className={`px-3 py-1.5 rounded-md text-xs font-semibold border min-w-[44px] ${
-                                              ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused
-                                                ? 'bg-[#0ea5e9] border-[#0ea5e9] text-white'
-                                                : 'bg-white border-[#0ea5e9]/20 text-[#0ea5e9] hover:bg-[#f0f9ff]'
-                                            } disabled:opacity-50`}
-                                            aria-label={ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused ? 'Pause audio' : 'Play audio'}
-                                          >
-                                            {ttsLoadingItemId === item.id
-                                              ? '…'
-                                              : ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused
-                                                ? '❚❚'
-                                                : '▶'}
-                                          </button>
-                                          <select
-                                            value={ttsRate}
-                                            onChange={(e) => handleTtsRateChange(item, Number(e.target.value))}
-                                            className="px-2.5 py-1.5 rounded-md border border-[#0ea5e9]/20 text-xs bg-white text-[#0ea5e9]"
-                                          >
-                                            <option value={1}>1x</option>
-                                            <option value={1.25}>1.25x</option>
-                                            <option value={1.5}>1.5x</option>
-                                            <option value={1.75}>1.75x</option>
-                                            <option value={2}>2x</option>
-                                          </select>
-                                          <button
-                                            type="button"
-                                            onClick={() => speakAnswerText(item)}
-                                            className="px-3 py-1.5 rounded-md text-xs font-medium bg-white border border-[#0ea5e9]/20 text-[#0ea5e9] hover:bg-[#f0f9ff]"
-                                          >
-                                            Replay
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setAudioTextViewById((prev) => ({ ...prev, [item.id]: true }))
-                                            }}
-                                            className="px-3 py-1.5 rounded-md text-xs font-medium bg-white border border-[#0ea5e9]/20 text-[#0ea5e9] hover:bg-[#f0f9ff]"
-                                          >
-                                            Text Form
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </>
-                              ) : item.responseMode === 'video' ? (
-                                <div className="space-y-3">
-                                  <div className="text-sm text-slate-700 leading-relaxed">
-                                    <FormattedAnswerText text={item.answer} />
-                                  </div>
-                                  {item.videoUrl ? (
-                                    <div className="space-y-2">
-                                      <video
-                                        src={item.videoUrl}
-                                        controls
-                                        playsInline
-                                        className="w-full rounded-xl border border-slate-200 bg-black"
-                                        onError={() => {
-                                          setQaThread((prev) =>
-                                            prev.map((q) =>
-                                              q.id === item.id
-                                                ? {
-                                                    ...q,
-                                                    videoPlaybackError:
-                                                      'Could not load the video. The link may have expired or D-ID may have blocked playback. Try again or use text/audio mode.',
-                                                  }
-                                                : q,
-                                            ),
-                                          )
-                                        }}
-                                      />
-                                      {item.videoPlaybackError ? (
-                                        <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                          {item.videoPlaybackError}
-                                        </p>
-                                      ) : null}
-                                    </div>
-                                  ) : item.videoError ? (
-                                    <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
-                                      {item.videoError}
-                                    </p>
-                                  ) : (
-                                    <p className="text-xs text-slate-400 italic">
-                                      Generating video… (D‑ID; needs a teacher profile photo)
-                                    </p>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="text-sm text-slate-700 leading-relaxed">
-                                  <FormattedAnswerText text={item.answer} />
-                                </div>
-                              )
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <span className="inline-block w-2 h-2 rounded-full bg-[#2563eb] animate-pulse" />
-                                <p className="text-sm text-slate-400 italic">Teacher is thinking…</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {qaThread.length === 0 && (
-                        <p className="text-sm text-slate-400 italic">
-                          Ask a question from the student side to see the answer here.
-                        </p>
-                      )}
-                    </div>
-
-                    {summary && (
-                      <div className="mb-4 p-3 rounded-xl bg-[#e0f2fe] border border-[#0ea5e9]/20 text-sm whitespace-pre-line">
-                        <strong>Lesson Summary</strong>
-                        <div className="mt-1 font-sans">
-                          <FormattedAnswerText text={summary} />
-                        </div>
-                      </div>
-                    )}
-
-                  </section>
-                </div>
-              ) : (
-                <section className="mt-3 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-sm text-slate-600">
-                  <p className="font-semibold text-[#0b1220] mb-1">Prepare your learning session</p>
-                  <p className="text-xs">
-                    We’ll guide you. Select the required items to start learning.
+        <main className="relative flex-1 flex min-h-0 overflow-hidden max-w-[1600px] w-full mx-auto px-4 md:px-6 py-4 gap-4">
+          {dashboardLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[var(--board-steel)]/90">
+              <FlapPanel className="w-full max-w-sm">
+                <FlapPanelHead title="Loading" meta="Curriculum" />
+                <div className="px-4 py-5 text-center">
+                  <p className="font-[family-name:var(--font-flap)] text-sm tracking-[0.08em] uppercase text-[var(--flap-ink)] m-0">
+                    Loading curriculum…
                   </p>
-                </section>
-              )}
+                  <p className="mt-1 text-sm text-[var(--flap-mute)] m-0">
+                    Please wait while we fetch your dashboard.
+                  </p>
+                </div>
+              </FlapPanel>
             </div>
           )}
-          </div>
+          {!dashboardLoading && dashboardError && (
+            <div className="absolute top-2 left-4 right-4 z-50">
+              <div className="max-w-[1600px] mx-auto border border-[var(--flap-cancel)]/50 bg-[var(--flap-face)] px-4 py-2 text-sm text-[var(--flap-cancel)]">
+                {dashboardError}
+              </div>
+            </div>
+          )}
 
-          {/* Learn guide overlay (blur behind) */}
-          {teacherTopTool === 'learn' && !canEnterLearn && (
-            <div className="absolute inset-0 z-20 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 bg-white/55 backdrop-blur-md" />
-              <div className="relative h-full flex items-center justify-center p-4">
-                <div className="w-full max-w-[520px] bg-white rounded-2xl shadow-xl border border-slate-200 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-[#0b1220]">Before you click Learn</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Complete these steps. Once they’re done, Learn will unlock automatically.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setTeacherTopTool('teacher')}
-                      className="p-2 rounded-xl hover:bg-slate-100 text-slate-600"
-                      aria-label="Close"
+          {/* Teacher Side */}
+          <section className="flex-[3] min-w-0 flex flex-col min-h-0 relative">
+            <FlapPanel scroll className="flex-1 flex flex-col min-h-0">
+              <div className="shrink-0 flex items-center justify-between gap-2 px-2 py-2 border-b border-[var(--board-rule)] bg-[var(--board-steel-deep)]">
+                <div className="flex items-center gap-1 flex-wrap">
+                  {[
+                    { id: 'teacher', label: 'Teacher' },
+                    { id: 'mode', label: 'Mode' },
+                    { id: 'difficulty', label: 'Level' },
+                    { id: 'learn', label: 'Learn' },
+                  ].map((item) => (
+                    <FlapTab
+                      key={item.id}
+                      active={teacherTopTool === item.id}
+                      onClick={() => setTeacherTopTool(item.id)}
                     >
-                      ✕
-                    </button>
-                  </div>
+                      {item.label}
+                    </FlapTab>
+                  ))}
+                </div>
+                <span className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)] hidden md:inline truncate max-w-[12rem]">
+                  {selectedTeacher ? selectedTeacher.name : 'Select a teacher'}
+                </span>
+              </div>
 
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <div>
-                        <p className="text-xs font-semibold text-slate-700">1) Select Subject</p>
-                        <p className="text-[11px] text-slate-500">
-                          {selectedSubject ? `Selected: ${selectedSubject.label}` : 'Not selected'}
-                        </p>
+              {teacherTopTool !== 'learn' && (
+                <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-3">
+                  {teacherTopTool === 'teacher' && (
+                    <div className="flex flex-col min-h-0 flex-1 gap-2 overflow-hidden">
+                      <div className="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <FlapInput
+                          value={teacherSearch}
+                          onChange={(e) => setTeacherSearch(e.target.value)}
+                          placeholder="Search teachers…"
+                        />
+                        <select
+                          value={teacherSort}
+                          onChange={(e) => setTeacherSort(e.target.value)}
+                          className="w-full bg-[var(--flap-face)] text-[var(--flap-ink)] border border-[var(--board-rule)] px-3 py-2 text-sm outline-none focus:border-[var(--flap-amber)] font-[family-name:var(--font-body)]"
+                        >
+                          <option value="rating_desc">Sort: Rating (high → low)</option>
+                          <option value="rating_asc">Sort: Rating (low → high)</option>
+                          <option value="name_asc">Sort: Name (A → Z)</option>
+                        </select>
+                        <select
+                          value={teacherStyle}
+                          onChange={(e) => setTeacherStyle(e.target.value)}
+                          className="w-full bg-[var(--flap-face)] text-[var(--flap-ink)] border border-[var(--board-rule)] px-3 py-2 text-sm outline-none focus:border-[var(--flap-amber)] font-[family-name:var(--font-body)]"
+                        >
+                          {teacherStyles.map((style) => (
+                            <option key={style} value={style}>
+                              {style === 'all' ? 'Filter: All styles' : `Style: ${style}`}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSubjectOpen(true)
-                        }}
-                        className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#2563eb] text-white hover:opacity-90"
-                      >
-                        Go
-                      </button>
-                    </div>
 
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                      <div>
-                        <p className="text-xs font-semibold text-slate-700">2) Select Lesson</p>
-                        <p className="text-[11px] text-slate-500">
-                          {selectedLesson ? `Selected: ${selectedLesson.title}` : 'Not selected'}
+                      <div className="shrink-0 flex items-center justify-between">
+                        <p className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)] m-0">
+                          Showing {filteredTeachers.length} teacher{filteredTeachers.length === 1 ? '' : 's'}
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTeacherSearch('')
+                            setTeacherStyle('all')
+                            setTeacherSort('rating_desc')
+                          }}
+                          className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)] hover:text-[var(--flap-amber)] border-none bg-transparent cursor-pointer"
+                        >
+                          Reset
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!selectedSubject) {
-                            setSubjectOpen(true)
-                            return
-                          }
-                          setLessonOpen(true)
-                        }}
-                        className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#2563eb] text-white hover:opacity-90"
-                      >
-                        Go
-                      </button>
-                    </div>
 
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="flex-1 min-h-0 flex flex-col overflow-hidden border border-[var(--board-rule)]">
+                        <div className="shrink-0 grid grid-cols-[1.4fr_1fr_0.9fr] gap-x-3 px-3 py-1.5 border-b border-[var(--board-rule)] bg-[var(--board-steel-deep)]">
+                          {['Name', 'Style', 'Rating'].map((h) => (
+                            <span
+                              key={h}
+                              className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.14em] uppercase text-[var(--flap-mute)]"
+                            >
+                              {h}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex-1 min-h-0 overflow-y-auto">
+                          {filteredTeachers.map((t) => (
+                            <FlapRow
+                              key={t.id}
+                              selected={selectedTeacher?.id === t.id}
+                              onClick={() => handleSelectTeacher(t)}
+                              className="grid-cols-none"
+                              cols={[
+                                { label: t.name, width: '1.4fr' },
+                                { label: t.style || '—', width: '1fr', mute: true },
+                                {
+                                  label: teacherRatingSummary(t),
+                                  width: '0.9fr',
+                                  className: 'text-[var(--flap-amber)]',
+                                },
+                              ]}
+                            />
+                          ))}
+                          {filteredTeachers.length === 0 && (
+                            <p className="text-sm text-[var(--flap-mute)] italic px-3 py-3 m-0">
+                              No teachers match your search/filter.
+                            </p>
+                          )}
+                        </div>
+                        {selectedTeacher && (
+                          <div className="shrink-0 p-2 border-t border-[var(--board-rule)]">
+                            <FlapButton
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => setSelectedTeacher(null)}
+                            >
+                              Change Teacher
+                            </FlapButton>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {teacherTopTool === 'mode' && (
+                    <div className="flex flex-wrap gap-2">
+                      {RESPONSE_MODES.map((m) => (
+                        <FlapTab
+                          key={m.id}
+                          active={responseMode === m.id}
+                          onClick={() => setResponseMode(m.id)}
+                        >
+                          {m.label}
+                        </FlapTab>
+                      ))}
+                    </div>
+                  )}
+
+                  {teacherTopTool === 'difficulty' && (
+                    <div className="flex flex-wrap gap-2">
+                      {DIFFICULTY_LEVELS.map((d) => (
+                        <FlapTab
+                          key={d.id}
+                          active={difficultyLevel === d.id}
+                          onClick={() => setDifficultyLevel(d.id)}
+                        >
+                          {d.label}
+                        </FlapTab>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {teacherTopTool === 'learn' && (
+                <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-3">
+                  {canEnterLearn ? (
+                    <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[0.4fr_0.6fr] gap-3">
+                      <FlapPanel className="flex flex-col items-center justify-center p-4">
+                        {selectedTeacher?.avatar_url ? (
+                          <img
+                            src={selectedTeacher.avatar_url}
+                            alt={selectedTeacher.name}
+                            className="w-28 h-28 object-cover border border-[var(--board-rule)]"
+                            onError={(e) => {
+                              e.currentTarget.src = ''
+                            }}
+                          />
+                        ) : (
+                          <div className="w-28 h-28 border border-[var(--board-rule)] bg-[var(--flap-face)] flex items-center justify-center font-[family-name:var(--font-flap)] text-4xl font-bold text-[var(--flap-amber)]">
+                            {selectedTeacher ? selectedTeacher.name.charAt(0) : '?'}
+                          </div>
+                        )}
+                        <p className="mt-3 font-[family-name:var(--font-flap)] text-sm font-semibold tracking-[0.08em] uppercase text-[var(--flap-ink)] m-0">
+                          {selectedTeacher ? selectedTeacher.name : 'Select a teacher'}
+                        </p>
+                        <p className="text-xs text-[var(--flap-mute)] m-0 mt-1">
+                          {selectedTeacher ? selectedTeacher.school : 'Personalize explanations by teaching style'}
+                        </p>
+                        {selectedTeacher && (
+                          <p className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-amber)] mt-2 m-0">
+                            {selectedTeacher.style} · {teacherRatingSummary(selectedTeacher)}
+                          </p>
+                        )}
+                        <div className="mt-4 w-full grid grid-cols-2 gap-2">
+                          <div className="border border-[var(--board-rule)] bg-[var(--flap-face)] p-3">
+                            <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.14em] uppercase text-[var(--flap-mute)] m-0">
+                              Response
+                            </p>
+                            <p className="text-sm font-semibold text-[var(--flap-ink)] capitalize m-0 mt-1">
+                              {responseMode}
+                            </p>
+                          </div>
+                          <div className="border border-[var(--board-rule)] bg-[var(--flap-face)] p-3">
+                            <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.14em] uppercase text-[var(--flap-mute)] m-0">
+                              Difficulty
+                            </p>
+                            <p className="text-sm font-semibold text-[var(--flap-ink)] m-0 mt-1">
+                              {DIFFICULTY_LEVELS.find((d) => d.id === difficultyLevel)?.label || 'Beginner'}
+                            </p>
+                          </div>
+                        </div>
+                      </FlapPanel>
+
+                      <FlapPanel scroll className="flex flex-col min-h-0">
+                        <div className="shrink-0 flex items-center justify-between gap-2 px-3 py-2 border-b border-[var(--board-rule)] bg-[var(--board-steel-deep)]">
+                          <div>
+                            <h3 className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.16em] uppercase text-[var(--flap-ink)] m-0">
+                              Teacher Answers
+                            </h3>
+                            <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.12em] uppercase text-[var(--flap-mute)] m-0 mt-0.5">
+                              {selectedLesson ? `Lesson: ${selectedLesson.title}` : 'Select a lesson to begin'}
+                            </p>
+                          </div>
+                          {selectedLesson && (
+                            <FlapButton
+                              variant="amber"
+                              onClick={handleSummarize}
+                              disabled={summarizing || !qaThread.some((i) => i.answer)}
+                            >
+                              {summarizing ? 'Summarizing…' : 'Summarize'}
+                            </FlapButton>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-h-0 overflow-y-auto space-y-0">
+                          {qaThread.map((item) => (
+                            <div key={item.id} className="border-b border-[var(--board-rule)]">
+                              <div className="px-3 py-3 bg-[var(--board-steel-deep)]">
+                                <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.14em] uppercase text-[var(--flap-mute)] m-0">
+                                  {item.homeworkPhoto ? 'Homework photo' : 'Student asked'}
+                                </p>
+                                {item.imagePreviewUrl ? (
+                                  <div className="mt-2 mb-2 overflow-hidden border border-[var(--board-rule)] bg-[var(--flap-face)] max-w-xs">
+                                    <img
+                                      src={item.imagePreviewUrl}
+                                      alt="Homework"
+                                      className="max-h-40 w-full object-contain"
+                                    />
+                                  </div>
+                                ) : null}
+                                <p className="text-sm font-medium text-[var(--flap-ink)] m-0 mt-1">
+                                  {item.question}
+                                </p>
+                                <p className="font-[family-name:var(--font-flap)] text-[9px] tracking-[0.1em] uppercase text-[var(--flap-mute)] mt-1 m-0">
+                                  Teacher: {item.teacher?.name || 'not selected'} · {item.responseMode} ·{' '}
+                                  {DIFFICULTY_LEVELS.find((d) => d.id === item.difficultyLevel)?.label ||
+                                    'Beginner'}
+                                  {item.homeworkPhoto ? ' · hints only' : ''}
+                                </p>
+                              </div>
+                              <div className="px-3 py-3">
+                                {item.answer ? (
+                                  item.responseMode === 'audio' ? (
+                                    <>
+                                      {audioTextViewById[item.id] ? (
+                                        <div className="border border-[var(--board-rule)] bg-[var(--flap-face)] p-3">
+                                          <div className="mb-2">
+                                            <FlapButton
+                                              variant="ghost"
+                                              onClick={() =>
+                                                setAudioTextViewById((prev) => ({
+                                                  ...prev,
+                                                  [item.id]: false,
+                                                }))
+                                              }
+                                            >
+                                              ← Back
+                                            </FlapButton>
+                                          </div>
+                                          <div className="text-sm text-[var(--flap-ink)] leading-relaxed">
+                                            <FormattedAnswerText text={item.answer} />
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="border border-[var(--board-rule)] bg-[var(--flap-face)] p-3 flex flex-wrap items-center gap-3">
+                                          <div
+                                            className={`w-24 h-16 border border-[var(--board-rule)] bg-[var(--board-steel-deep)] flex items-center justify-center px-2 py-2 ${
+                                              ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused
+                                                ? 'audio-wave-cluster-active'
+                                                : ''
+                                            }`}
+                                          >
+                                            <div className="audio-wave-cluster">
+                                              {[0.45, 0.62, 0.8, 1, 0.8, 0.62, 0.45].map((factor, bar) => (
+                                                <span
+                                                  key={bar}
+                                                  className="audio-wave-bar"
+                                                  style={{
+                                                    '--wave-factor': factor,
+                                                    animationDelay: `${bar * 0.08}s`,
+                                                  }}
+                                                />
+                                              ))}
+                                            </div>
+                                          </div>
+                                          <div className="flex-1 min-w-[220px]">
+                                            <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.14em] uppercase text-[var(--flap-amber)] mb-2 m-0">
+                                              Audio output
+                                            </p>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                              <FlapButton
+                                                variant={
+                                                  ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused
+                                                    ? 'amber'
+                                                    : 'ghost'
+                                                }
+                                                onClick={() => handlePlayPauseToggle(item)}
+                                                disabled={ttsLoadingItemId === item.id}
+                                                aria-label={
+                                                  ttsActiveItemId === item.id && ttsSpeaking && !ttsPaused
+                                                    ? 'Pause audio'
+                                                    : 'Play audio'
+                                                }
+                                              >
+                                                {ttsLoadingItemId === item.id
+                                                  ? '…'
+                                                  : ttsActiveItemId === item.id &&
+                                                      ttsSpeaking &&
+                                                      !ttsPaused
+                                                    ? 'Pause'
+                                                    : 'Play'}
+                                              </FlapButton>
+                                              <select
+                                                value={ttsRate}
+                                                onChange={(e) =>
+                                                  handleTtsRateChange(item, Number(e.target.value))
+                                                }
+                                                className="bg-[var(--flap-face)] text-[var(--flap-ink)] border border-[var(--board-rule)] px-2.5 py-1.5 text-xs outline-none focus:border-[var(--flap-amber)]"
+                                              >
+                                                <option value={1}>1x</option>
+                                                <option value={1.25}>1.25x</option>
+                                                <option value={1.5}>1.5x</option>
+                                                <option value={1.75}>1.75x</option>
+                                                <option value={2}>2x</option>
+                                              </select>
+                                              <FlapButton variant="ghost" onClick={() => speakAnswerText(item)}>
+                                                Replay
+                                              </FlapButton>
+                                              <FlapButton
+                                                variant="ghost"
+                                                onClick={() => {
+                                                  setAudioTextViewById((prev) => ({
+                                                    ...prev,
+                                                    [item.id]: true,
+                                                  }))
+                                                }}
+                                              >
+                                                Text Form
+                                              </FlapButton>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : item.responseMode === 'video' ? (
+                                    <div className="space-y-3">
+                                      <div className="text-sm text-[var(--flap-ink)] leading-relaxed">
+                                        <FormattedAnswerText text={item.answer} />
+                                      </div>
+                                      {item.videoUrl ? (
+                                        <div className="space-y-2">
+                                          <video
+                                            src={item.videoUrl}
+                                            controls
+                                            playsInline
+                                            className="w-full border border-[var(--board-rule)] bg-black"
+                                            onError={() => {
+                                              setQaThread((prev) =>
+                                                prev.map((q) =>
+                                                  q.id === item.id
+                                                    ? {
+                                                        ...q,
+                                                        videoPlaybackError:
+                                                          'Could not load the video. The link may have expired or D-ID may have blocked playback. Try again or use text/audio mode.',
+                                                      }
+                                                    : q,
+                                                ),
+                                              )
+                                            }}
+                                          />
+                                          {item.videoPlaybackError ? (
+                                            <p className="text-xs text-[var(--flap-amber)] border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-3 py-2 m-0">
+                                              {item.videoPlaybackError}
+                                            </p>
+                                          ) : null}
+                                        </div>
+                                      ) : item.videoError ? (
+                                        <p className="text-xs text-[var(--flap-amber)] border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-3 py-2 leading-relaxed m-0">
+                                          {item.videoError}
+                                        </p>
+                                      ) : (
+                                        <p className="text-xs text-[var(--flap-mute)] italic m-0">
+                                          Generating video… (D‑ID; needs a teacher profile photo)
+                                        </p>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="text-sm text-[var(--flap-ink)] leading-relaxed">
+                                      <FormattedAnswerText text={item.answer} />
+                                    </div>
+                                  )
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-block w-2 h-2 bg-[var(--flap-amber)] animate-pulse" />
+                                    <p className="text-sm text-[var(--flap-mute)] italic m-0">
+                                      Teacher is thinking…
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          {qaThread.length === 0 && (
+                            <p className="text-sm text-[var(--flap-mute)] italic px-3 py-4 m-0">
+                              Ask a question from the student side to see the answer here.
+                            </p>
+                          )}
+                          {summary && (
+                            <div className="m-3 p-3 border border-[var(--board-rule)] bg-[var(--flap-face)] text-sm whitespace-pre-line">
+                              <strong className="font-[family-name:var(--font-flap)] tracking-[0.08em] uppercase text-[var(--flap-amber)]">
+                                Lesson Summary
+                              </strong>
+                              <div className="mt-1 font-[family-name:var(--font-body)] text-[var(--flap-ink)]">
+                                <FormattedAnswerText text={summary} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </FlapPanel>
+                    </div>
+                  ) : (
+                    <FlapPanel className="p-5 text-sm text-[var(--flap-mute)]">
+                      <p className="font-[family-name:var(--font-flap)] text-sm font-semibold tracking-[0.08em] uppercase text-[var(--flap-ink)] mb-1 m-0">
+                        Prepare your learning session
+                      </p>
+                      <p className="text-xs m-0">
+                        We’ll guide you. Select the required items to start learning.
+                      </p>
+                    </FlapPanel>
+                  )}
+                </div>
+              )}
+            </FlapPanel>
+
+            {teacherTopTool === 'learn' && !canEnterLearn && (
+              <div className="absolute inset-0 z-20 overflow-hidden">
+                <div className="absolute inset-0 bg-[var(--board-steel)]/92" />
+                <div className="relative h-full flex items-center justify-center p-4">
+                  <FlapPanel className="w-full max-w-[520px]">
+                    <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-[var(--board-rule)] bg-[var(--board-steel-deep)]">
                       <div>
-                        <p className="text-xs font-semibold text-slate-700">3) Select Teacher</p>
-                        <p className="text-[11px] text-slate-500">
-                          {selectedTeacher ? `Selected: ${selectedTeacher.name}` : 'Not selected'}
+                        <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-ink)] m-0">
+                          Before you click Learn
+                        </p>
+                        <p className="text-xs text-[var(--flap-mute)] mt-1 m-0">
+                          Complete these steps. Once they’re done, Learn will unlock automatically.
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setTeacherTopTool('teacher')}
-                        className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#0ea5e9] text-white hover:opacity-90"
+                        className="p-2 text-[var(--flap-mute)] hover:text-[var(--flap-ink)] border-none bg-transparent cursor-pointer"
+                        aria-label="Close"
                       >
-                        Choose
+                        ×
                       </button>
                     </div>
-                  </div>
 
-                  <div className="mt-4 text-xs text-slate-500">
-                    Tip: after selecting, click <strong>Learn</strong> again to start your session.
-                  </div>
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-center justify-between gap-3 p-3 border border-[var(--board-rule)] bg-[var(--flap-face)]">
+                        <div>
+                          <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.1em] uppercase text-[var(--flap-ink)] m-0">
+                            1) Select Subject
+                          </p>
+                          <p className="text-[11px] text-[var(--flap-mute)] m-0 mt-0.5">
+                            {selectedSubject ? `Selected: ${selectedSubject.label}` : 'Not selected'}
+                          </p>
+                        </div>
+                        <FlapButton
+                          variant="primary"
+                          onClick={() => {
+                            setSubjectOpen(true)
+                          }}
+                        >
+                          Go
+                        </FlapButton>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 p-3 border border-[var(--board-rule)] bg-[var(--flap-face)]">
+                        <div>
+                          <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.1em] uppercase text-[var(--flap-ink)] m-0">
+                            2) Select Lesson
+                          </p>
+                          <p className="text-[11px] text-[var(--flap-mute)] m-0 mt-0.5">
+                            {selectedLesson ? `Selected: ${selectedLesson.title}` : 'Not selected'}
+                          </p>
+                        </div>
+                        <FlapButton
+                          variant="primary"
+                          onClick={() => {
+                            if (!selectedSubject) {
+                              setSubjectOpen(true)
+                              return
+                            }
+                            setLessonOpen(true)
+                          }}
+                        >
+                          Go
+                        </FlapButton>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 p-3 border border-[var(--board-rule)] bg-[var(--flap-face)]">
+                        <div>
+                          <p className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.1em] uppercase text-[var(--flap-ink)] m-0">
+                            3) Select Teacher
+                          </p>
+                          <p className="text-[11px] text-[var(--flap-mute)] m-0 mt-0.5">
+                            {selectedTeacher ? `Selected: ${selectedTeacher.name}` : 'Not selected'}
+                          </p>
+                        </div>
+                        <FlapButton variant="amber" onClick={() => setTeacherTopTool('teacher')}>
+                          Choose
+                        </FlapButton>
+                      </div>
+                    </div>
+
+                    <div className="px-4 pb-4 text-xs text-[var(--flap-mute)]">
+                      Tip: after selecting, click <strong>Learn</strong> again to start your session.
+                    </div>
+                  </FlapPanel>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
+            )}
+          </section>
 
-        {/* Student Side — 40% (question-only) */}
-        <section className="flex-[2] min-w-0 flex flex-col min-h-0 gap-4">
-          {/* Subject/Lesson/Progress: shrink-wrap when minimized; scroll when expanded */}
-          <div className="flex-shrink-0 overflow-y-auto flex flex-col gap-4 pr-1 max-h-[55vh]">
-            {/* Subject (collapsible) */}
-            <section className="bg-white rounded-2xl shadow-sm border border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSubjectOpen((v) => !v)}
-                className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-[#0b1220]">1) Subject</p>
-                  <p className="text-xs text-slate-500">
-                    {!selectedTeacher
-                      ? 'Select a teacher first — you will only see their subjects'
-                      : selectedSubject
-                        ? selectedSubject.label
-                        : teacherSubjectList(selectedTeacher).length
-                          ? 'Choose a subject this teacher covers'
-                          : 'This teacher has no subjects listed yet'}
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-slate-500">
-                  {subjectOpen ? 'Minimize' : selectedSubject ? 'Change' : 'Select'}
-                </span>
-              </button>
-              {subjectOpen && (
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
-                    {subjects.map((subj) => (
-                      <button
-                        key={subj.id}
-                        type="button"
-                        onClick={() => handleSelectSubject(subj)}
-                        className={`p-4 rounded-xl border text-left transition-all ${
-                          selectedSubject?.id === subj.id
-                            ? 'border-[#2563eb] bg-[#eff6ff] ring-1 ring-[#2563eb]/30'
-                            : 'border-slate-100 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="text-2xl block mb-1">📘</span>
-                        <span className="text-sm font-semibold text-[#0b1220]">{subj.label}</span>
-                      </button>
-                    ))}
-                    {subjects.length === 0 && (
-                      <p className="col-span-2 text-sm text-slate-500 py-2">
-                        {!selectedTeacher
-                          ? 'Choose a teacher first. Only that teacher’s subjects will appear here.'
-                          : 'This teacher has no matching subjects for your board and grade.'}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </section>
-
-            {/* Lesson (collapsible) */}
-            <section className={`bg-white rounded-2xl shadow-sm border ${selectedSubject ? 'border-slate-100' : 'border-slate-100/60 opacity-60'}`}>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!selectedSubject) return
-                  setLessonOpen((v) => !v)
-                }}
-                className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-[#0b1220]">2) Lesson</p>
-                  <p className="text-xs text-slate-500">
-                    {selectedLesson ? selectedLesson.title : selectedSubject ? `Choose a lesson in ${selectedSubject.label}` : 'Select a subject first'}
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-slate-500">
-                  {!selectedSubject ? 'Locked' : lessonOpen ? 'Minimize' : selectedLesson ? 'Change' : 'Select'}
-                </span>
-              </button>
-
-              {lessonOpen && selectedSubject && (
-                <div className="px-4 pb-4">
-                  <div className="space-y-2">
-                    {lessons.map((lesson) => (
-                      <button
-                        key={lesson.id}
-                        type="button"
-                        onClick={() => handleSelectLesson(lesson)}
-                        className={`w-full px-4 py-3 rounded-xl border text-left transition-all ${
-                          selectedLesson?.id === lesson.id
-                            ? 'border-[#2563eb] bg-[#eff6ff]'
-                            : 'border-slate-100 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="text-sm font-medium text-[#0b1220]">{lesson.title}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
-
-            {/* Progress (collapsible) */}
-            {selectedLesson && (
-              <section className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          {/* Student Side */}
+          {/* Student Side — subject strip + homework (capped scroll) + ask fills rest */}
+          <section className="flex-[2] min-w-0 flex flex-col min-h-0 gap-3">
+            {/* Compact collapsible header strip — capped so it cannot steal the column */}
+            <div className="shrink-0 flex flex-col gap-2 max-h-[min(32vh,280px)] min-h-0 overflow-y-auto overscroll-contain">
+              <FlapPanel>
                 <button
                   type="button"
-                  onClick={() => setProgressOpen((v) => !v)}
-                  className="w-full px-4 py-3 flex items-center justify-between gap-3 text-left"
+                  onClick={() => setSubjectOpen((v) => !v)}
+                  className="w-full px-3 py-2.5 flex items-center justify-between gap-3 text-left border-none bg-transparent cursor-pointer"
                 >
                   <div>
-                    <p className="text-sm font-semibold text-[#0b1220]">3) Progress</p>
-                    <p className="text-xs text-slate-500">
-                      {completedTopics.size}/{topicList.length} topics checked
+                    <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-ink)] m-0">
+                      1) Subject
+                    </p>
+                    <p className="text-xs text-[var(--flap-mute)] m-0 mt-0.5">
+                      {!selectedTeacher
+                        ? 'Select a teacher first — you will only see their subjects'
+                        : selectedSubject
+                          ? selectedSubject.label
+                          : teacherSubjectList(selectedTeacher).length
+                            ? 'Choose a subject this teacher covers'
+                            : 'This teacher has no subjects listed yet'}
                     </p>
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">{progressOpen ? 'Minimize' : 'View'}</span>
+                  <span className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)]">
+                    {subjectOpen ? 'Minimize' : selectedSubject ? 'Change' : 'Select'}
+                  </span>
                 </button>
-                {progressOpen && (
-                  <div className="px-4 pb-4">
-                    <ul className="space-y-2">
-                      {topicList.map((topic, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm">
-                          {completedTopics.has(i) ? (
-                            <span className="text-emerald-500">✔</span>
-                          ) : (
-                            <span className="text-slate-300">⬜</span>
-                          )}
-                          <span className={completedTopics.has(i) ? 'text-slate-700' : 'text-slate-500'}>
-                            {topic}
+                {subjectOpen && (
+                  <div className="px-3 pb-3 border-t border-[var(--board-rule)]">
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      {subjects.map((subj) => (
+                        <button
+                          key={subj.id}
+                          type="button"
+                          onClick={() => handleSelectSubject(subj)}
+                          className={`p-3 border text-left cursor-pointer ${
+                            selectedSubject?.id === subj.id
+                              ? 'border-[var(--flap-amber)] bg-[var(--flap-face)]'
+                              : 'border-[var(--board-rule)] bg-transparent hover:bg-[var(--flap-face)]/50'
+                          }`}
+                        >
+                          <span className="font-[family-name:var(--font-flap)] text-sm font-semibold tracking-[0.06em] uppercase text-[var(--flap-ink)]">
+                            {subj.label}
                           </span>
-                        </li>
+                        </button>
                       ))}
-                    </ul>
+                      {subjects.length === 0 && (
+                        <p className="col-span-2 text-sm text-[var(--flap-mute)] py-2 m-0">
+                          {!selectedTeacher
+                            ? 'Choose a teacher first. Only that teacher’s subjects will appear here.'
+                            : 'This teacher has no matching subjects for your board and grade.'}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
-              </section>
-            )}
+              </FlapPanel>
 
-            {/* Doubt history was moved into the Ask box */}
-          </div>
+              <FlapPanel className={!selectedSubject ? 'opacity-60' : ''}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!selectedSubject) return
+                    setLessonOpen((v) => !v)
+                  }}
+                  className="w-full px-3 py-2.5 flex items-center justify-between gap-3 text-left border-none bg-transparent cursor-pointer"
+                >
+                  <div>
+                    <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-ink)] m-0">
+                      2) Lesson
+                    </p>
+                    <p className="text-xs text-[var(--flap-mute)] m-0 mt-0.5">
+                      {selectedLesson
+                        ? selectedLesson.title
+                        : selectedSubject
+                          ? `Choose a lesson in ${selectedSubject.label}`
+                          : 'Select a subject first'}
+                    </p>
+                  </div>
+                  <span className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)]">
+                    {!selectedSubject ? 'Locked' : lessonOpen ? 'Minimize' : selectedLesson ? 'Change' : 'Select'}
+                  </span>
+                </button>
 
-          {/* Homework Photo Help — dedicated entry */}
-          <section className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden shrink-0">
-            <button
-              type="button"
-              onClick={() => setHomeworkPanelOpen((o) => !o)}
-              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50"
-            >
-              <div>
-                <p className="text-sm font-semibold text-[#0b1220]">Homework Photo Help</p>
-                <p className="text-xs text-slate-500">
-                  Snap or upload a problem — get hints, not the answer.
-                </p>
-              </div>
-              <span className="text-xs font-semibold text-slate-500">
-                {homeworkPanelOpen ? 'Minimize' : 'Open'}
-              </span>
-            </button>
-            {homeworkPanelOpen && (
-              <div className="px-4 pb-4">
-                <HomeworkPhotoUploader
-                  key={`panel-${homeworkUploaderKey}`}
-                  disabled={!selectedLesson}
-                  loading={chatLoading}
-                  onSubmit={handleHomeworkPhotoSubmit}
-                />
-                {!selectedLesson && (
-                  <p className="mt-2 text-xs text-amber-700">Select a subject and lesson first.</p>
+                {lessonOpen && selectedSubject && (
+                  <div className="px-3 pb-3 border-t border-[var(--board-rule)] space-y-0 pt-0">
+                    {lessons.map((lesson) => (
+                      <FlapRow
+                        key={lesson.id}
+                        selected={selectedLesson?.id === lesson.id}
+                        onClick={() => handleSelectLesson(lesson)}
+                        cols={[{ label: lesson.title, width: '1fr' }]}
+                      />
+                    ))}
+                  </div>
                 )}
-              </div>
-            )}
-          </section>
+              </FlapPanel>
 
-          {/* Ask box: grows to fill space when Subject/Lesson/Progress are minimized */}
-          <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col flex-1 min-h-[200px]">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <div>
-                <p className="text-sm font-semibold text-[#0b1220]">Ask your question</p>
-                <p className="text-xs text-slate-500">
-                  {selectedLesson
-                    ? 'Type a question, or attach a homework photo for hints.'
-                    : 'Select subject + lesson first.'}
-                </p>
-              </div>
-              <div className="text-xs font-semibold text-slate-500">
-                {selectedSubject?.label ? `${selectedSubject.label}${selectedLesson ? ` · ${selectedLesson.title}` : ''}` : ''}
-              </div>
-            </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              <p className="text-xs font-semibold text-slate-500 mb-2">Past conversations</p>
-              {doubtHistory.length === 0 ? (
-                <p className="text-xs text-slate-400 italic">
-                  Your asked questions will show up here for quick reuse.
-                </p>
-              ) : (
-                <ul className="mt-1 space-y-1.5">
-                  {doubtHistory.map((q, i) => (
-                    <li key={i} className="text-xs text-slate-600">
-                      • {q}
-                    </li>
-                  ))}
-                </ul>
+              {selectedLesson && (
+                <FlapPanel>
+                  <button
+                    type="button"
+                    onClick={() => setProgressOpen((v) => !v)}
+                    className="w-full px-3 py-2.5 flex items-center justify-between gap-3 text-left border-none bg-transparent cursor-pointer"
+                  >
+                    <div>
+                      <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-ink)] m-0">
+                        3) Progress
+                      </p>
+                      <p className="text-xs text-[var(--flap-mute)] m-0 mt-0.5">
+                        {completedTopics.size}/{topicList.length} topics checked
+                      </p>
+                    </div>
+                    <span className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)]">
+                      {progressOpen ? 'Minimize' : 'View'}
+                    </span>
+                  </button>
+                  {progressOpen && (
+                    <div className="px-3 pb-3 border-t border-[var(--board-rule)]">
+                      <ul className="space-y-1.5 m-0 mt-2 p-0 list-none">
+                        {topicList.map((topic, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm">
+                            <span
+                              className={
+                                completedTopics.has(i)
+                                  ? 'text-[var(--flap-amber)]'
+                                  : 'text-[var(--flap-mute)]'
+                              }
+                            >
+                              {completedTopics.has(i) ? '[x]' : '[ ]'}
+                            </span>
+                            <span
+                              className={
+                                completedTopics.has(i)
+                                  ? 'text-[var(--flap-ink)]'
+                                  : 'text-[var(--flap-mute)]'
+                              }
+                            >
+                              {topic}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </FlapPanel>
               )}
             </div>
 
-            {chatAttachOpen && (
-              <div className="mt-3">
-                <HomeworkPhotoUploader
-                  key={`attach-${homeworkUploaderKey}`}
-                  compact
-                  disabled={!selectedLesson}
-                  loading={chatLoading}
-                  onSubmit={handleHomeworkPhotoSubmit}
-                  onClear={() => setChatAttachOpen(false)}
-                />
-              </div>
-            )}
+            <FlapPanel
+              className={
+                homeworkPanelOpen
+                  ? 'shrink-0 max-h-[min(48vh,440px)] min-h-0 flex flex-col overflow-hidden'
+                  : 'shrink-0'
+              }
+            >
+              <button
+                type="button"
+                onClick={() => setHomeworkPanelOpen((o) => !o)}
+                className="w-full shrink-0 flex items-center justify-between gap-3 px-3 py-2.5 text-left border-none bg-transparent cursor-pointer hover:bg-[var(--flap-face)]/40"
+              >
+                <div>
+                  <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-ink)] m-0">
+                    Homework Photo Help
+                  </p>
+                  <p className="text-xs text-[var(--flap-mute)] m-0 mt-0.5">
+                    Snap or upload a problem — get hints, not the answer.
+                  </p>
+                </div>
+                <span className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)]">
+                  {homeworkPanelOpen ? 'Minimize' : 'Open'}
+                </span>
+              </button>
+              {homeworkPanelOpen && (
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 pb-3 border-t border-[var(--board-rule)]">
+                  <HomeworkPhotoUploader
+                    key={`panel-${homeworkUploaderKey}`}
+                    hideChrome
+                    disabled={!selectedLesson}
+                    loading={chatLoading}
+                    onSubmit={handleHomeworkPhotoSubmit}
+                  />
+                  {!selectedLesson && (
+                    <p className="mt-2 text-xs text-[var(--flap-amber)] m-0">
+                      Select a subject and lesson first.
+                    </p>
+                  )}
+                </div>
+              )}
+            </FlapPanel>
 
-            <div className="flex gap-2 mt-3">
-              <button
-                type="button"
-                onClick={() => setChatAttachOpen((o) => !o)}
-                className={`p-2.5 rounded-xl border hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed ${
-                  chatAttachOpen ? 'border-[#2563eb] bg-[#eff6ff]' : 'border-slate-200'
-                }`}
-                aria-label="Attach homework photo"
-                title="Attach homework photo"
-                disabled={!selectedLesson || chatLoading}
-              >
-                📎
-              </button>
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder={selectedLesson ? 'Type your question here…' : 'Select a lesson to start…'}
-                disabled={!selectedLesson}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/40 focus:border-[#2563eb]"
+            <FlapPanel scroll className="flex-1 min-h-0 flex flex-col">
+              <FlapPanelHead
+                title="Ask your question"
+                meta={
+                  selectedSubject?.label
+                    ? `${selectedSubject.label}${selectedLesson ? ` · ${selectedLesson.title}` : ''}`
+                    : selectedLesson
+                      ? 'Ready'
+                      : 'Select subject + lesson'
+                }
               />
-              <button
-                type="button"
-                onClick={handleSendMessage}
-                disabled={!selectedLesson || !chatInput.trim() || chatLoading}
-                className="px-4 py-2.5 rounded-xl bg-[#2563eb] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {chatLoading ? 'Thinking…' : 'Send'}
-              </button>
-              <button
-                type="button"
-                onClick={handleMicRecording}
-                className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40"
-                aria-label="Microphone"
-                disabled={!selectedLesson || chatLoading || micLoading}
-              >
-                {micRecording ? '⏹️' : micLoading ? '…' : '🎤'}
-              </button>
-            </div>
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <p className={`text-xs ${micError ? 'text-rose-600' : 'text-slate-400'}`}>
-                {micError ||
-                  (micRecording
-                    ? 'Recording... click stop to send.'
-                    : homeworkSessionActive
-                      ? 'Follow-ups stay on your homework photo (hints only). Use mic for voice, or 📎 for a new photo.'
-                      : 'Use mic for voice question, or 📎 for a homework photo.')}
-              </p>
-            </div>
+              <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2">
+                <p className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)] mb-2 m-0">
+                  Past conversations
+                </p>
+                {doubtHistory.length === 0 ? (
+                  <p className="text-xs text-[var(--flap-mute)] italic m-0">
+                    Your asked questions will show up here for quick reuse.
+                  </p>
+                ) : (
+                  <ul className="mt-1 space-y-1.5 m-0 p-0 list-none">
+                    {doubtHistory.map((q, i) => (
+                      <li key={i} className="text-xs text-[var(--flap-ink)] border-b border-[var(--board-rule)] py-1.5">
+                        {q}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {chatAttachOpen && (
+                <div className="shrink-0 max-h-[min(36vh,320px)] min-h-0 overflow-y-auto overscroll-contain px-3 pb-2 border-t border-[var(--board-rule)] pt-2">
+                  <HomeworkPhotoUploader
+                    key={`attach-${homeworkUploaderKey}`}
+                    compact
+                    hideChrome
+                    disabled={!selectedLesson}
+                    loading={chatLoading}
+                    onSubmit={handleHomeworkPhotoSubmit}
+                    onClear={() => setChatAttachOpen(false)}
+                  />
+                </div>
+              )}
+
+              <div className="shrink-0 flex gap-2 px-3 py-3 border-t border-[var(--board-rule)]">
+                <FlapButton
+                  variant={chatAttachOpen ? 'amber' : 'ghost'}
+                  onClick={() => setChatAttachOpen((o) => !o)}
+                  disabled={!selectedLesson || chatLoading}
+                  aria-label="Attach homework photo"
+                  title="Attach homework photo"
+                >
+                  Photo
+                </FlapButton>
+                <FlapInput
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder={selectedLesson ? 'Type your question here…' : 'Select a lesson to start…'}
+                  disabled={!selectedLesson}
+                  className="flex-1"
+                />
+                <FlapButton
+                  variant="primary"
+                  onClick={handleSendMessage}
+                  disabled={!selectedLesson || !chatInput.trim() || chatLoading}
+                >
+                  {chatLoading ? 'Thinking…' : 'Send'}
+                </FlapButton>
+                <FlapButton
+                  variant={micRecording ? 'amber' : 'ghost'}
+                  onClick={handleMicRecording}
+                  aria-label="Microphone"
+                  disabled={!selectedLesson || chatLoading || micLoading}
+                >
+                  {micRecording ? 'Stop' : micLoading ? '…' : 'Mic'}
+                </FlapButton>
+              </div>
+              <div className="shrink-0 px-3 pb-3 flex items-center justify-between gap-2">
+                <p
+                  className={`text-xs m-0 ${micError ? 'text-[var(--flap-cancel)]' : 'text-[var(--flap-mute)]'}`}
+                >
+                  {micError ||
+                    (micRecording
+                      ? 'Recording... click stop to send.'
+                      : homeworkSessionActive
+                        ? 'Follow-ups stay on your homework photo (hints only). Use mic for voice, or Photo for a new photo.'
+                        : 'Use mic for voice question, or Photo for a homework photo.')}
+                </p>
+              </div>
+            </FlapPanel>
           </section>
-        </section>
-      </main>
+        </main>
       )}
 
       <LogoutReviewModal
@@ -2100,8 +2153,9 @@ function StudentDashboard() {
         onQuit={performLogout}
         onSubmitReview={handleLogoutSubmitReview}
       />
-    </div>
+    </BoardShell>
   )
 }
+
 
 export default StudentDashboard

@@ -9,8 +9,7 @@ import {
   startStudentQuiz,
   submitQuizAnswer,
 } from '../services/api.js'
-
-const glass = 'rounded-2xl border border-slate-100 bg-white shadow-sm'
+import { FlapPanel, FlapPanelHead, FlapRow, FlapButton, FlapInput } from './ui/Board.jsx'
 
 export default function StudentQuizHub({ onLearnTopic }) {
   const [quizzes, setQuizzes] = useState([])
@@ -69,41 +68,60 @@ export default function StudentQuizHub({ onLearnTopic }) {
   return (
     <div className="flex-1 min-h-0 overflow-y-auto space-y-5">
       <header>
-        <h1 className="text-xl font-[700] text-[#0b1220]">Quizzes</h1>
-        <p className="text-sm text-slate-500 mt-1">Assessments for your grade, with a tutor beside every question.</p>
+        <h1 className="font-[family-name:var(--font-flap)] text-xl font-bold tracking-[0.06em] uppercase text-[var(--flap-ink)] m-0">
+          Quizzes
+        </h1>
+        <p className="text-sm text-[var(--flap-mute)] mt-1 font-[family-name:var(--font-body)]">
+          Assessments for your grade, with a tutor beside every question.
+        </p>
       </header>
-      {error ? <div className="rounded-xl bg-rose-50 text-rose-800 px-3 py-2 text-sm">{error}</div> : null}
-      {loading ? <p className="text-sm text-slate-500">Loading quizzes…</p> : null}
+      {error ? (
+        <div className="border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] px-3 py-2 text-sm">
+          {error}
+        </div>
+      ) : null}
+      {loading ? (
+        <p className="font-[family-name:var(--font-flap)] text-sm tracking-[0.1em] uppercase text-[var(--flap-mute)]">
+          Loading quizzes…
+        </p>
+      ) : null}
       {!loading && quizzes.length === 0 ? (
-        <div className={`${glass} p-8 text-center text-sm text-slate-500`}>No quizzes assigned to your grade yet.</div>
+        <FlapPanel className="p-8 text-center">
+          <p className="font-[family-name:var(--font-flap)] text-sm tracking-[0.12em] uppercase text-[var(--flap-mute)] m-0">
+            No quizzes assigned to your grade yet.
+          </p>
+        </FlapPanel>
       ) : null}
       {['active', 'available', 'completed'].map((key) =>
         groups[key].length ? (
-          <section key={key} className="space-y-2">
-            <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-              {key === 'active' ? 'In progress' : key === 'available' ? 'Available' : 'Completed'}
-            </h2>
+          <FlapPanel key={key}>
+            <FlapPanelHead
+              title={key === 'active' ? 'In progress' : key === 'available' ? 'Available' : 'Completed'}
+              meta={`${groups[key].length} row${groups[key].length === 1 ? '' : 's'}`}
+            />
             {groups[key].map((q) => (
-              <article key={q.id} className={`${glass} p-4 flex flex-wrap items-center justify-between gap-3`}>
-                <div>
-                  <p className="font-semibold text-[#0b1220]">{q.title}</p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {q.subject} · {q.lesson}
-                    {q.topic ? ` · ${q.topic}` : ''} · {q.question_count} questions
-                    {q.score_percent != null ? ` · ${q.score_percent}%` : ''}
-                  </p>
+              <div key={q.id} className="flex flex-wrap items-center gap-2 border-b border-[var(--board-rule)] last:border-b-0">
+                <div className="flex-1 min-w-0">
+                  <FlapRow
+                    className="!border-b-0"
+                    cols={[
+                      { label: q.title, width: '1.4fr' },
+                      {
+                        label: `${q.subject} · ${q.lesson}${q.topic ? ` · ${q.topic}` : ''} · ${q.question_count} questions${q.score_percent != null ? ` · ${q.score_percent}%` : ''}`,
+                        width: '2fr',
+                        mute: true,
+                      },
+                    ]}
+                  />
                 </div>
-                <button
-                  type="button"
-                  disabled={Boolean(busy)}
-                  onClick={() => start(q.id)}
-                  className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-sm font-semibold border-none cursor-pointer"
-                >
-                  {q.bucket === 'completed' ? 'Review' : q.bucket === 'active' ? 'Continue' : 'Start'}
-                </button>
-              </article>
+                <div className="px-3 py-2 shrink-0">
+                  <FlapButton disabled={Boolean(busy)} onClick={() => start(q.id)} variant="amber">
+                    {q.bucket === 'completed' ? 'Review' : q.bucket === 'active' ? 'Continue' : 'Start'}
+                  </FlapButton>
+                </div>
+              </div>
             ))}
-          </section>
+          </FlapPanel>
         ) : null,
       )}
     </div>
@@ -223,133 +241,151 @@ function QuizPlayer({ session, setSession, onExit, onLearnTopic }) {
   if (completed) {
     return (
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
-        <button type="button" onClick={onExit} className="text-sm text-[#2563eb] border-none bg-transparent cursor-pointer">
-          ← Quiz list
-        </button>
-        <div className={`${glass} p-6`}>
-          <p className="text-sm text-slate-500">Score</p>
-          <p className="text-4xl font-[800] text-[#0b1220]">{session.attempt.score_percent}%</p>
-          <p className="text-sm text-slate-600 mt-2">
-            {session.attempt.correct_count} correct on first try · {session.quiz.title}
-          </p>
-          {summary?.weak_topics?.length ? (
-            <div className="mt-4 rounded-xl bg-amber-50 border border-amber-100 p-3 text-sm">
-              <p className="font-medium">Review in Learn through Chat</p>
-              <p className="mt-1 text-slate-600">{summary.weak_topics.join(', ')}</p>
-              <button
-                type="button"
-                className="mt-3 px-3 py-1.5 rounded-lg bg-[#2563eb] text-white text-sm border-none cursor-pointer"
-                onClick={() =>
-                  onLearnTopic?.({
-                    subject: session.quiz.subject,
-                    lesson: session.quiz.lesson,
-                    topic: summary.weak_topics[0],
-                  })
-                }
-              >
-                Open Learn chat for this topic
-              </button>
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-slate-600">Nice work. Keep the ideas fresh with a short Learn chat.</p>
-          )}
-        </div>
+        <FlapButton variant="ghost" onClick={onExit}>
+          Quiz list
+        </FlapButton>
+        <FlapPanel>
+          <FlapPanelHead title="Score" meta={session.quiz.title} />
+          <div className="p-5">
+            <p className="font-[family-name:var(--font-flap)] text-5xl font-bold tracking-[0.04em] tabular-nums text-[var(--flap-amber)] m-0">
+              {session.attempt.score_percent}%
+            </p>
+            <p className="text-sm text-[var(--flap-mute)] mt-2 font-[family-name:var(--font-body)]">
+              {session.attempt.correct_count} correct on first try · {session.quiz.title}
+            </p>
+            {summary?.weak_topics?.length ? (
+              <div className="mt-4 border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-3 py-3 text-sm">
+                <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-amber)] m-0">
+                  Review in Learn through Chat
+                </p>
+                <p className="mt-1 text-[var(--flap-ink)] font-[family-name:var(--font-body)]">
+                  {summary.weak_topics.join(', ')}
+                </p>
+                <div className="mt-3">
+                  <FlapButton
+                    variant="amber"
+                    onClick={() =>
+                      onLearnTopic?.({
+                        subject: session.quiz.subject,
+                        lesson: session.quiz.lesson,
+                        topic: summary.weak_topics[0],
+                      })
+                    }
+                  >
+                    Open Learn chat for this topic
+                  </FlapButton>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)]">
+                Nice work. Keep the ideas fresh with a short Learn chat.
+              </p>
+            )}
+          </div>
+        </FlapPanel>
       </div>
     )
   }
 
   return (
     <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-4">
-      <section className={`${glass} p-4 flex-1 min-w-0 flex flex-col min-h-0`}>
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <button type="button" onClick={onExit} className="text-sm text-slate-500 border-none bg-transparent cursor-pointer">
+      <FlapPanel scroll className="flex-1 min-w-0 flex flex-col min-h-0">
+        <FlapPanelHead
+          title="Question"
+          meta={`${index + 1} of ${questions.length}`}
+        />
+        <div className="px-3 py-2 border-b border-[var(--board-rule)] flex items-center justify-between gap-2">
+          <FlapButton variant="ghost" onClick={onExit}>
             Exit
-          </button>
-          <p className="text-xs text-slate-500">
-            Question {index + 1} of {questions.length}
+          </FlapButton>
+          <p className="font-[family-name:var(--font-flap)] text-[10px] tracking-[0.12em] uppercase text-[var(--flap-mute)] m-0">
+            {session.quiz.subject} · {session.quiz.lesson}
           </p>
         </div>
-        <h2 className="font-semibold text-[#0b1220] leading-snug">{question?.prompt}</h2>
-        <p className="text-xs text-slate-500 mt-1">{session.quiz.subject} · {session.quiz.lesson}</p>
-        {error ? <p className="text-sm text-rose-700 mt-2">{error}</p> : null}
-        <div className="mt-4 space-y-2 flex-1 overflow-y-auto">
+        <div className="px-4 pt-3">
+          <h2 className="font-[family-name:var(--font-body)] font-semibold text-[var(--flap-ink)] leading-snug m-0">
+            {question?.prompt}
+          </h2>
+          {error ? <p className="text-sm text-[var(--flap-cancel)] mt-2 m-0">{error}</p> : null}
+        </div>
+        <div className="mt-3 px-4 pb-2 space-y-2 flex-1 min-h-0 overflow-y-auto">
           {(question?.options || []).length > 0
             ? question.options.map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
                   onClick={() => setChoice(String(opt.id))}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl border text-sm cursor-pointer ${
-                    choice === String(opt.id) ? 'border-[#2563eb] bg-sky-50' : 'border-slate-200 bg-white'
+                  className={`w-full text-left px-3 py-2.5 border text-sm cursor-pointer font-[family-name:var(--font-body)] ${
+                    choice === String(opt.id)
+                      ? 'border-[var(--flap-amber)] bg-[var(--flap-face)] text-[var(--flap-ink)]'
+                      : 'border-[var(--board-rule)] bg-[var(--board-steel-deep)] text-[var(--flap-ink)] hover:bg-[var(--flap-face)]/50'
                   }`}
                 >
-                  <span className="font-semibold mr-2">{opt.id}.</span>
+                  <span className="font-[family-name:var(--font-flap)] font-semibold tracking-[0.08em] uppercase mr-2 text-[var(--flap-amber)]">
+                    {opt.id}.
+                  </span>
                   {opt.text}
                 </button>
               ))
             : (
                 <textarea
-                  className="w-full min-h-[88px] rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="w-full min-h-[88px] bg-[var(--flap-face)] text-[var(--flap-ink)] border border-[var(--board-rule)] px-3 py-2 text-sm outline-none focus:border-[var(--flap-amber)] placeholder:text-[var(--flap-mute)] font-[family-name:var(--font-body)]"
                   placeholder="Type your answer"
                   value={choice}
                   onChange={(e) => setChoice(e.target.value)}
                 />
               )}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={Boolean(busy)}
-            onClick={submit}
-            className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-sm font-semibold border-none cursor-pointer"
-          >
+        <div className="mt-auto px-3 py-3 flex flex-wrap gap-2 border-t border-[var(--board-rule)] bg-[var(--board-steel-deep)]">
+          <FlapButton disabled={Boolean(busy)} onClick={submit} variant="amber">
             {busy === 'submit' ? 'Checking…' : 'Submit answer'}
-          </button>
-          <button
-            type="button"
-            disabled={index === 0}
-            onClick={() => setIndex((i) => Math.max(0, i - 1))}
-            className="px-3 py-2 rounded-xl bg-slate-100 text-sm border-none cursor-pointer"
-          >
+          </FlapButton>
+          <FlapButton disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))} variant="ghost">
             Back
-          </button>
-          <button
-            type="button"
+          </FlapButton>
+          <FlapButton
             disabled={index >= questions.length - 1}
             onClick={() => setIndex((i) => Math.min(questions.length - 1, i + 1))}
-            className="px-3 py-2 rounded-xl bg-slate-100 text-sm border-none cursor-pointer"
+            variant="ghost"
           >
             Next
-          </button>
+          </FlapButton>
           {canFinish ? (
-            <button
-              type="button"
-              disabled={Boolean(busy)}
-              onClick={finish}
-              className="ml-auto px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-sm font-semibold border-none cursor-pointer"
-            >
+            <FlapButton className="ml-auto" disabled={Boolean(busy)} onClick={finish} variant="primary">
               {busy === 'complete' ? 'Finishing…' : 'Finish quiz'}
-            </button>
+            </FlapButton>
           ) : null}
         </div>
-      </section>
-      <aside className={`${glass} p-4 w-full md:w-[380px] shrink-0 flex flex-col min-h-0`}>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Quiz companion</p>
-        <p className="text-xs text-slate-500 mt-1">Hints after you try. The tutor will not give the answer first.</p>
-        <div className="flex-1 min-h-[180px] overflow-y-auto mt-3 space-y-2">
+      </FlapPanel>
+      <FlapPanel scroll className="w-full md:w-[380px] shrink-0 flex flex-col min-h-[220px] md:min-h-0">
+        <FlapPanelHead title="Quiz companion" meta="Hints" />
+        <p className="px-3 pt-2 text-xs text-[var(--flap-mute)] font-[family-name:var(--font-body)] m-0">
+          Hints after you try. The tutor will not give the answer first.
+        </p>
+        <div className="flex-1 min-h-0 overflow-y-auto mt-3 px-3 space-y-2">
           {thread.length === 0 ? (
-            <p className="text-sm text-slate-500">Submit an answer to get feedback, or ask for a hint after you try.</p>
+            <p className="text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)]">
+              Submit an answer to get feedback, or ask for a hint after you try.
+            </p>
           ) : (
             thread.map((m, i) => (
-              <div key={i} className={`text-sm rounded-xl px-3 py-2 ${m.role === 'student' ? 'bg-slate-50' : 'bg-sky-50'}`}>
-                <FormattedAnswerText text={m.content} className="text-sm" />
+              <div
+                key={i}
+                className={`text-sm px-3 py-2 border border-[var(--board-rule)] ${
+                  m.role === 'student' ? 'bg-[var(--board-steel-deep)]' : 'bg-[var(--flap-face)]'
+                }`}
+              >
+                <FormattedAnswerText
+                  text={m.content}
+                  className="text-sm text-[var(--flap-ink)] prose-invert [&_strong]:!text-[var(--flap-ink)] [&_h1]:!text-[var(--flap-ink)] [&_h2]:!text-[var(--flap-ink)] [&_h3]:!text-[var(--flap-ink)]"
+                />
               </div>
             ))
           )}
         </div>
-        <div className="mt-3 flex gap-2">
-          <input
-            className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        <div className="mt-3 p-3 flex gap-2 border-t border-[var(--board-rule)]">
+          <FlapInput
+            className="flex-1"
             placeholder="Ask a hint…"
             value={chat}
             onChange={(e) => setChat(e.target.value)}
@@ -357,16 +393,11 @@ function QuizPlayer({ session, setSession, onExit, onLearnTopic }) {
               if (e.key === 'Enter') askTutor()
             }}
           />
-          <button
-            type="button"
-            disabled={Boolean(busy)}
-            onClick={askTutor}
-            className="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm border-none cursor-pointer"
-          >
+          <FlapButton disabled={Boolean(busy)} onClick={askTutor} variant="primary">
             {busy === 'tutor' ? '…' : 'Send'}
-          </button>
+          </FlapButton>
         </div>
-      </aside>
+      </FlapPanel>
     </div>
   )
 }

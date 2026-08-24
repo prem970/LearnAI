@@ -102,37 +102,30 @@ function TeacherOnboarding() {
     }
 
     return (
-        <div className="min-h-screen flex items-stretch justify-center bg-white">
-            <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-white shadow-[0_28px_80px_rgba(9,9,11,0.12)] border border-slate-200 animate-auth-fade md:rounded-[18px] md:overflow-hidden md:self-center md:my-8">
+        <div className="min-h-[100dvh] flex items-stretch justify-center bg-[var(--board-steel-deep)]">
+            <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-[var(--board-steel)] border border-[var(--board-rule)] animate-auth-fade md:self-center md:my-8">
 
-                {/* ── Purple side panel ── */}
-                <aside className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white relative overflow-hidden" aria-hidden="true">
-                    <div className="absolute inset-0 opacity-90 pointer-events-none"
-                        style={{ background: 'radial-gradient(circle at 20% 0,rgba(244,244,245,.22),transparent 60%),radial-gradient(circle at 100% 100%,rgba(14,165,233,.32),transparent 70%)', mixBlendMode: 'screen' }} />
-
+                <aside className="hidden md:flex flex-col justify-between p-10 bg-[var(--board-steel-deep)] text-[var(--flap-ink)] border-r border-[var(--board-rule)] relative" aria-hidden="true">
                     <div className="relative z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center text-2xl mb-6 backdrop-blur-sm">
-                            🧠
-                        </div>
-                        <p className="text-[1.3rem] font-[700] mb-3 leading-tight">
+                        <p className="font-[family-name:var(--font-flap)] text-[1.3rem] font-semibold tracking-[0.04em] uppercase mb-3 leading-tight">
                             Build Your AI Teaching Identity
                         </p>
-                        <p className="text-sm text-white/85 leading-relaxed mb-6">
+                        <p className="text-sm text-[var(--flap-mute)] leading-relaxed mb-6">
                             This isn&apos;t just a form. You&apos;re training your personal AI to understand
                             how <em>you</em> teach — so it can help your students the same way you would.
                         </p>
 
                         <div className="space-y-3">
                             {[
-                                { icon: '📄', text: 'Share your content preferences' },
-                                { icon: '🎙️', text: 'Capture your natural teaching voice' },
-                                { icon: '✨', text: 'AI detects your unique teaching style' },
+                                { mark: '01', text: 'Share your content preferences' },
+                                { mark: '02', text: 'Capture your natural teaching voice' },
+                                { mark: '03', text: 'AI detects your unique teaching style' },
                             ].map((item, i) => (
-                                <div key={i} className={['flex items-center gap-3 transition-all duration-300', step > i ? 'opacity-100' : 'opacity-50'].join(' ')}>
-                                    <span className="text-base">{item.icon}</span>
-                                    <p className="text-sm text-white/90 font-[500]">{item.text}</p>
+                                <div key={i} className={['flex items-center gap-3 transition-opacity duration-300', step > i ? 'opacity-100' : 'opacity-50'].join(' ')}>
+                                    <span className="font-[family-name:var(--font-flap)] text-xs font-semibold tracking-[0.08em] text-[var(--flap-amber)] tabular-nums">{item.mark}</span>
+                                    <p className="text-sm text-[var(--flap-ink)] font-medium">{item.text}</p>
                                     {step > i + 1 && (
-                                        <svg className="w-4 h-4 text-teal-300 ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <svg className="w-4 h-4 text-[var(--flap-amber)] ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     )}
@@ -141,18 +134,17 @@ function TeacherOnboarding() {
                         </div>
                     </div>
 
-                    <div className="relative z-10 pt-6 border-t border-white/20">
-                        <p className="text-xs text-white/60">
+                    <div className="relative z-10 pt-6 border-t border-[var(--board-rule)]">
+                        <p className="text-xs text-[var(--flap-mute)]">
                             LearnAI Teacher Onboarding · Secure & Private
                         </p>
                     </div>
                 </aside>
 
-                {/* ── Form panel ── */}
                 <div className="px-7 py-9 md:px-10 overflow-y-auto">
                     <header className="mb-2">
-                        <p className="text-[1.05rem] font-[700] text-[#2563eb] tracking-wide">LearnAI</p>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="font-[family-name:var(--font-flap)] text-[1.05rem] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)]">LearnAI</p>
+                        <p className="text-xs text-[var(--flap-mute)] mt-0.5">
                             {startAtStep2 ? 'Re-record your teaching voice — step 2 of 2' : 'Teacher Onboarding — Just 2 quick steps'}
                         </p>
                     </header>
@@ -171,7 +163,7 @@ function TeacherOnboarding() {
                     <ProgressBar current={step} />
 
                     {submitError && (
-                        <div className="mb-4 px-3 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm">
+                        <div className="mb-4 px-3 py-2.5 border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] text-sm">
                             {submitError}
                         </div>
                     )}
@@ -195,7 +187,7 @@ function TeacherOnboarding() {
                         />
                     )}
                     {step === 2 && startAtStep2 && !profileLoaded && (
-                        <p className="text-sm text-slate-500 py-8 text-center">Loading your profile…</p>
+                        <p className="text-sm text-[var(--flap-mute)] py-8 text-center">Loading your profile…</p>
                     )}
                 </div>
             </div>

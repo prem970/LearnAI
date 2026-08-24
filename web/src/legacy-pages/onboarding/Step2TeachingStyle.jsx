@@ -224,64 +224,57 @@ function Step2TeachingStyle({ onBack, onSubmit, submitting }) {
     const timerLabel = recording ? `${mm}:${String(ss).padStart(2, '0')}` : null
 
     return (
-        <div className="animate-auth-fade">
+        <div className="animate-auth-fade text-[var(--flap-ink)]">
             <div className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#eff6ff] rounded-full mb-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb]" />
-                    <span className="text-xs font-[600] text-[#2563eb] uppercase tracking-wider">Step 2</span>
-                </div>
-                <h2 className="text-[1.35rem] font-[700] text-[#0b1220] mb-1">Teach a topic — by voice</h2>
-                <p className="text-sm text-slate-500">
+                <h2 className="font-[family-name:var(--font-flap)] text-[1.35rem] font-bold tracking-[0.06em] uppercase text-[var(--flap-ink)] mb-1">Teach a topic — by voice</h2>
+                <p className="text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)]">
                     Record yourself explaining any topic from your grades/subjects. We transcribe it for your teaching style and clone your voice for students.
                 </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-gradient-to-r from-[#eff6ff] to-[#f0f9ff] border border-[#2563eb]/15 mb-5">
-                <div className="flex gap-3">
-                    <span className="text-xl flex-shrink-0 mt-0.5">🎙️</span>
-                    <div>
-                        <p className="text-sm font-[600] text-[#0b1220] mb-1">Tips</p>
-                        <ul className="text-sm text-slate-600 leading-relaxed list-disc pl-4 space-y-1">
-                            <li>Speak clearly in a quiet place.</li>
-                            <li>Aim for <strong>{MIN_SECONDS}+ seconds</strong> (up to {MAX_SECONDS / 60} min).</li>
-                            <li>Teach one topic as you would in class — examples and questions welcome.</li>
-                        </ul>
-                    </div>
+            <div className="p-4 border border-[var(--board-rule)] bg-[var(--flap-face)] mb-5">
+                <div>
+                    <p className="font-[family-name:var(--font-flap)] text-sm font-semibold uppercase tracking-[0.1em] text-[var(--flap-ink)] mb-1">Tips</p>
+                    <ul className="text-sm text-[var(--flap-mute)] leading-relaxed list-disc pl-4 space-y-1 font-[family-name:var(--font-body)]">
+                        <li>Speak clearly in a quiet place.</li>
+                        <li>Aim for <strong className="text-[var(--flap-ink)]">{MIN_SECONDS}+ seconds</strong> (up to {MAX_SECONDS / 60} min).</li>
+                        <li>Teach one topic as you would in class — examples and questions welcome.</li>
+                    </ul>
                 </div>
             </div>
 
-            <div className="rounded-2xl border-2 border-slate-200 bg-white p-4 mb-4">
+            <div className="border border-[var(--board-rule)] bg-[var(--board-steel)] p-4 mb-4">
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                     {!recording ? (
                         <button
                             type="button"
                             onClick={startRecording}
                             disabled={submitting}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white bg-[#2563eb] hover:opacity-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase bg-[var(--flap-amber)] text-[var(--board-steel-deep)] border-none hover:brightness-110 disabled:opacity-50"
                         >
-                            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+                            <span className="w-2.5 h-2.5 bg-[var(--board-steel-deep)] animate-pulse" />
                             Start recording
                         </button>
                     ) : (
                         <button
                             type="button"
                             onClick={stopRecording}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white bg-rose-600 hover:opacity-95"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase bg-transparent text-[var(--flap-cancel)] border border-[var(--flap-cancel)]/40 hover:bg-[var(--flap-cancel)]/10"
                         >
                             Stop
                         </button>
                     )}
                     {timerLabel && (
-                        <span className="text-sm font-mono font-[600] text-[#2563eb]">{timerLabel}</span>
+                        <span className="text-sm font-mono font-semibold text-[var(--flap-amber)]">{timerLabel}</span>
                     )}
-                    <label className="text-sm text-slate-600 cursor-pointer">
-                        <span className="underline text-[#2563eb] font-[600]">Or upload audio</span>
+                    <label className="text-sm text-[var(--flap-mute)] cursor-pointer">
+                        <span className="underline text-[var(--flap-amber)] font-semibold">Or upload audio</span>
                         <input type="file" accept="audio/*,.webm,.wav,.mp3,.m4a,.ogg" className="hidden" onChange={handleFile} disabled={submitting || recording} />
                     </label>
                 </div>
 
                 {blob && (
-                    <p className="text-xs text-slate-500 mb-2">
+                    <p className="text-xs text-[var(--flap-mute)] mb-2">
                         Ready: {(blob.size / 1024 / 1024).toFixed(2)} MB · {mimeType || blob.type || 'audio'}
                     </p>
                 )}
@@ -289,14 +282,14 @@ function Step2TeachingStyle({ onBack, onSubmit, submitting }) {
                 {previewUrl && (
                     <audio
                         controls
-                        className="w-full rounded-xl"
+                        className="w-full"
                         src={previewUrl}
                     />
                 )}
             </div>
 
             {error && (
-                <p className="text-rose-600 text-sm font-medium mb-3">{error}</p>
+                <p className="text-[var(--flap-cancel)] text-sm font-medium mb-3">{error}</p>
             )}
 
             <div className="flex gap-3">
@@ -304,7 +297,7 @@ function Step2TeachingStyle({ onBack, onSubmit, submitting }) {
                     type="button"
                     onClick={onBack}
                     disabled={submitting}
-                    className="flex-1 px-4 py-2.5 rounded-full font-semibold text-[#2563eb] border-2 border-[#2563eb]/30 bg-white hover:bg-[#eff6ff] disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase text-[var(--flap-ink)] border border-[var(--board-rule)] bg-transparent hover:bg-[var(--flap-face)] disabled:opacity-50"
                 >
                     ← Back
                 </button>
@@ -312,7 +305,7 @@ function Step2TeachingStyle({ onBack, onSubmit, submitting }) {
                     type="button"
                     onClick={handleSubmit}
                     disabled={submitting || recording}
-                    className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient disabled:opacity-60"
+                    className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase bg-[var(--flap-amber)] text-[var(--board-steel-deep)] border-none disabled:opacity-60"
                 >
                     {submitting ? (
                         <span className="spinner" aria-label="Submitting" />

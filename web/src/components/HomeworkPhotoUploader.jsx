@@ -2,6 +2,7 @@
 
 import PropTypes from 'prop-types'
 import { useEffect, useRef, useState } from 'react'
+import { FlapButton, FlapInput } from './ui/Board.jsx'
 
 const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 const MAX_BYTES = 8 * 1024 * 1024
@@ -44,6 +45,7 @@ function HomeworkPhotoUploader({
   disabled = false,
   loading = false,
   compact = false,
+  hideChrome = false,
   onSubmit,
   onClear,
   className = '',
@@ -106,22 +108,26 @@ function HomeworkPhotoUploader({
   }
 
   return (
-    <div className={`rounded-2xl border border-slate-100 bg-white ${compact ? 'p-3' : 'p-4'} ${className}`.trim()}>
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div>
-          <p className={`font-semibold text-[#0b1220] ${compact ? 'text-sm' : 'text-sm'}`}>
-            Homework Photo Help
-          </p>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Hints only — you’ll solve it yourself. Upload or snap the problem.
-          </p>
+    <div
+      className={`${hideChrome ? '' : `border border-[var(--board-rule)] bg-[var(--board-steel)] ${compact ? 'p-3' : 'p-4'}`} text-[var(--flap-ink)] ${className}`.trim()}
+    >
+      {!hideChrome && (
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div>
+            <p className="font-[family-name:var(--font-flap)] font-semibold tracking-[0.08em] uppercase text-sm text-[var(--flap-ink)]">
+              Homework Photo Help
+            </p>
+            <p className="text-xs text-[var(--flap-mute)] mt-0.5 font-[family-name:var(--font-body)]">
+              Hints only — you’ll solve it yourself. Upload or snap the problem.
+            </p>
+          </div>
+          <span className="shrink-0 font-[family-name:var(--font-flap)] text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-1 bg-[var(--flap-amber)] text-[var(--board-steel-deep)]">
+            No full answers
+          </span>
         </div>
-        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
-          No full answers
-        </span>
-      </div>
+      )}
 
-      <div className="mb-3 rounded-xl bg-[#e0f2fe]/60 border border-[#0ea5e9]/20 px-3 py-2 text-xs text-slate-600">
+      <div className="mb-3 border border-[var(--board-rule)] bg-[var(--flap-face)] px-3 py-2 text-xs text-[var(--flap-mute)] font-[family-name:var(--font-body)]">
         We read the question from your photo and give the next step or a guiding question — never the final answer.
       </div>
 
@@ -144,69 +150,71 @@ function HomeworkPhotoUploader({
       />
 
       <div className="flex flex-wrap gap-2 mb-3">
-        <button
+        <FlapButton
           type="button"
           onClick={() => cameraRef.current?.click()}
           disabled={disabled || loading || preparing}
-          className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          variant="ghost"
         >
-          📷 Camera
-        </button>
-        <button
+          Camera
+        </FlapButton>
+        <FlapButton
           type="button"
           onClick={() => galleryRef.current?.click()}
           disabled={disabled || loading || preparing}
-          className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          variant="ghost"
         >
-          🖼 Gallery
-        </button>
+          Gallery
+        </FlapButton>
         {file && (
-          <button
-            type="button"
-            onClick={clearSelection}
-            disabled={loading}
-            className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-40"
-          >
+          <FlapButton type="button" onClick={clearSelection} disabled={loading} variant="danger">
             Clear
-          </button>
+          </FlapButton>
         )}
       </div>
 
       {previewUrl && (
-        <div className="mb-3 rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
-          <div className="px-3 py-1.5 text-[11px] text-slate-500 border-b border-slate-100">Preview</div>
+        <div className="mb-3 overflow-hidden border border-[var(--board-rule)] bg-[var(--flap-face)]">
+          <div className="px-3 py-1.5 font-[family-name:var(--font-flap)] text-[11px] tracking-[0.12em] uppercase text-[var(--flap-mute)] border-b border-[var(--board-rule)]">
+            Preview
+          </div>
           <div className="p-2 flex justify-center">
-            <img src={previewUrl} alt="Homework preview" className="max-h-48 rounded-lg object-contain" />
+            <img
+              src={previewUrl}
+              alt="Homework preview"
+              className={`${compact ? 'max-h-28' : 'max-h-40'} w-auto max-w-full object-contain`}
+            />
           </div>
         </div>
       )}
 
       <label className="block mb-3">
-        <span className="text-xs font-medium text-slate-600">What are you stuck on? (optional)</span>
-        <input
+        <span className="text-xs font-medium text-[var(--flap-mute)]">What are you stuck on? (optional)</span>
+        <FlapInput
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           disabled={disabled || loading}
           placeholder="e.g. I don’t know how to start step 2…"
-          className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/40 focus:border-[#2563eb] disabled:bg-slate-50"
+          className="mt-1"
         />
       </label>
 
       {error && (
-        <div className="mb-3 px-3 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-medium">
+        <div className="mb-3 px-3 py-2 border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] text-xs font-medium">
           {error}
         </div>
       )}
 
-      <button
+      <FlapButton
         type="button"
         onClick={handleSubmit}
         disabled={!file || disabled || loading || preparing}
-        className="w-full px-4 py-2.5 rounded-xl bg-[#2563eb] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+        variant="amber"
+        className="w-full"
       >
         {preparing ? 'Preparing photo…' : loading ? 'Getting a hint…' : 'Get a hint'}
-      </button>
+      </FlapButton>
     </div>
   )
 }
@@ -215,6 +223,7 @@ HomeworkPhotoUploader.propTypes = {
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
   compact: PropTypes.bool,
+  hideChrome: PropTypes.bool,
   onSubmit: PropTypes.func,
   onClear: PropTypes.func,
   className: PropTypes.string,

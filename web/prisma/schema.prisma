@@ -44,6 +44,7 @@ model User {
   quizAttempts        QuizAttempt[]
   learningRecs        StudentLearningRec[]
 
+  @@index([role])
   @@map("users")
 }
 
@@ -199,6 +200,9 @@ model TeacherRating {
   student   User     @relation("RatingStudent", fields: [studentId], references: [id], onDelete: Cascade)
   teacher   User     @relation("RatingTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
 
+  @@index([teacherId])
+  @@index([studentId])
+  @@index([teacherId, createdAt])
   @@map("teacher_ratings")
 }
 
@@ -219,6 +223,7 @@ model LearnTurn {
 
   @@index([teacherId, createdAt])
   @@index([teacherId, subject])
+  @@index([studentId, createdAt])
   @@map("learn_turns")
 }
 

@@ -1,0 +1,3 @@
+prompt: Matte black split-flap display letter tile texture: nearly black plastic/matte face with a faint horizontal split seam across the middle like airport departure board flaps, subtle wear, no lettering, square tile, photoreal, edge-to-edge.
+origin: generated
+tool: cursor GenerateImage

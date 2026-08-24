@@ -16,12 +16,12 @@ function ProgressBar({ current }) {
                             <div className="flex flex-col items-center">
                                 <div
                                     className={[
-                                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-[700] transition-all duration-300',
+                                        'w-8 h-8 flex items-center justify-center text-sm font-[700] font-[family-name:var(--font-flap)] tracking-[0.08em] border transition-colors',
                                         isCompleted
-                                            ? 'bg-[#2563eb] text-white shadow-[0_2px_10px_rgba(37,99,235,0.4)]'
+                                            ? 'bg-[var(--flap-amber)] text-[var(--board-steel-deep)] border-[var(--flap-amber)]'
                                             : isActive
-                                                ? 'bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white shadow-[0_4px_14px_rgba(37,99,235,0.45)] scale-110'
-                                                : 'bg-slate-100 text-slate-400 border-2 border-slate-200',
+                                                ? 'bg-[var(--flap-face)] text-[var(--flap-ink)] border-[var(--flap-amber)]'
+                                                : 'bg-[var(--board-steel)] text-[var(--flap-mute)] border-[var(--board-rule)]',
                                     ].join(' ')}
                                 >
                                     {isCompleted ? (
@@ -32,8 +32,12 @@ function ProgressBar({ current }) {
                                 </div>
                                 <span
                                     className={[
-                                        'text-[0.7rem] font-[600] mt-1.5 whitespace-nowrap transition-colors duration-200',
-                                        isActive ? 'text-[#2563eb]' : isCompleted ? 'text-[#2563eb]/70' : 'text-slate-400',
+                                        'font-[family-name:var(--font-flap)] text-[0.7rem] font-semibold mt-1.5 whitespace-nowrap uppercase tracking-[0.1em] transition-colors',
+                                        isActive
+                                            ? 'text-[var(--flap-amber)]'
+                                            : isCompleted
+                                                ? 'text-[var(--flap-ink)]'
+                                                : 'text-[var(--flap-mute)]',
                                     ].join(' ')}
                                 >
                                     {label}
@@ -43,9 +47,9 @@ function ProgressBar({ current }) {
                             {/* Connector line */}
                             {idx < STEPS.length - 1 && (
                                 <div className="flex-1 mx-2 mb-5">
-                                    <div className="h-[2px] rounded-full bg-slate-100 relative overflow-hidden">
+                                    <div className="h-[2px] bg-[var(--board-rule)] relative overflow-hidden">
                                         <div
-                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#2563eb] to-[#1e3a8a] transition-all duration-500 ease-out"
+                                            className="absolute inset-y-0 left-0 bg-[var(--flap-amber)] transition-all duration-500 ease-out"
                                             style={{ width: isCompleted ? '100%' : '0%' }}
                                         />
                                     </div>
@@ -57,13 +61,13 @@ function ProgressBar({ current }) {
             </div>
 
             {/* Overall progress bar */}
-            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-[var(--board-rule)] overflow-hidden">
                 <div
-                    className="h-full bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-[var(--flap-amber)] transition-all duration-500 ease-out"
                     style={{ width: `${((current - 1) / (STEPS.length - 1)) * 100}%` }}
                 />
             </div>
-            <p className="text-right text-[0.7rem] text-slate-400 mt-1">
+            <p className="text-right font-[family-name:var(--font-flap)] text-[0.7rem] tracking-[0.1em] uppercase text-[var(--flap-mute)] mt-1">
                 Step {current} of {STEPS.length}
             </p>
         </div>

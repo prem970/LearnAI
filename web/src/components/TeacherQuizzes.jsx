@@ -15,9 +15,13 @@ import {
   publishTeacherQuiz,
   regenerateQuizQuestion,
 } from '../services/api.js'
+import { FlapPanel, FlapPanelHead, FlapButton, FlapInput, FlapRow } from './ui/Board.jsx'
 
-const glass =
-  'rounded-2xl border border-white/70 bg-white/70 backdrop-blur-xl shadow-[0_8px_40px_rgba(37,99,235,0.08)]'
+const fieldClass =
+  'mt-1 w-full flap-cell text-[var(--flap-ink)] border border-[var(--board-rule)] bg-[var(--flap-face)] px-3 py-2 outline-none focus:border-[var(--flap-amber)] font-[family-name:var(--font-body)]'
+const noticeAmber =
+  'text-sm text-[var(--flap-amber)] border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-3 py-2'
+const labelClass = 'block text-sm font-medium text-[var(--flap-ink)]'
 
 function formatWhen(iso) {
   if (!iso) return '—'
@@ -28,12 +32,22 @@ function formatWhen(iso) {
   }
 }
 
-function Stat({ label, value }) {
+function StatRows({ rows }) {
   return (
-    <div className={`${glass} p-4`}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="text-2xl font-[800] text-[#0f172a] tabular-nums mt-1">{value ?? '—'}</p>
-    </div>
+    <FlapPanel>
+      <FlapPanelHead title="Quiz board" meta={`${rows.length} rows`} />
+      {rows.map((r) => (
+        <FlapRow
+          key={r.label}
+          lamp
+          amber={r.amber}
+          cols={[
+            { label: r.label, width: '1.4fr', mute: true },
+            { label: String(r.value ?? '—'), width: '1fr', className: r.amber ? 'text-[var(--flap-amber)]' : '' },
+          ]}
+        />
+      ))}
+    </FlapPanel>
   )
 }
 
@@ -259,78 +273,96 @@ export default function TeacherQuizzes() {
   const header = (
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-xl font-[700] text-[#0f172a]">Quizzes & assessments</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="font-[family-name:var(--font-flap)] text-xl font-bold tracking-[0.06em] uppercase text-[var(--flap-ink)] m-0">
+          Quizzes & assessments
+        </h1>
+        <p className="text-sm text-[var(--flap-mute)] mt-1 font-[family-name:var(--font-body)]">
           AI builds grade-aligned questions. You preview, edit, then publish to the class.
         </p>
       </div>
       {view !== 'list' ? (
-        <button
-          type="button"
-          className="text-sm font-medium text-[#2563eb] border-none bg-transparent cursor-pointer"
+        <FlapButton
+          variant="ghost"
           onClick={() => {
             setView('list')
             loadList()
           }}
         >
           ← All quizzes
-        </button>
+        </FlapButton>
       ) : (
-        <button
-          type="button"
-          onClick={openCreate}
-          className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-sm font-semibold border-none cursor-pointer"
-        >
+        <FlapButton variant="amber" onClick={openCreate}>
           Create with AI
-        </button>
+        </FlapButton>
       )}
     </header>
   )
 
   if (loading && view === 'list') {
-    return <div className={`${glass} p-8 text-sm text-slate-500`}>Loading quizzes…</div>
+    return (
+      <FlapPanel className="p-8">
+        <p className="font-[family-name:var(--font-flap)] text-sm tracking-[0.1em] uppercase text-[var(--flap-mute)] m-0">
+          Loading quizzes…
+        </p>
+      </FlapPanel>
+    )
   }
 
   return (
     <div className="space-y-4">
       {header}
       {error ? (
-        <div className="px-4 py-3 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-sm">{error}</div>
+        <div className="px-4 py-3 border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] text-sm">
+          {error}
+        </div>
       ) : null}
 
       {view === 'list' && (
         <div className="space-y-3">
           {quizzes.length === 0 ? (
-            <div className={`${glass} p-10 text-center`}>
-              <p className="font-semibold text-[#0f172a]">No quizzes yet</p>
-              <p className="text-sm text-slate-500 mt-2">Pick a lesson and let AI draft an assessment for your class.</p>
-            </div>
+            <FlapPanel className="p-10 text-center">
+              <p className="font-[family-name:var(--font-flap)] font-semibold tracking-[0.08em] uppercase text-[var(--flap-ink)]">
+                No quizzes yet
+              </p>
+              <p className="text-sm text-[var(--flap-mute)] mt-2 font-[family-name:var(--font-body)]">
+                Pick a lesson and let AI draft an assessment for your class.
+              </p>
+            </FlapPanel>
           ) : (
             quizzes.map((q) => (
-              <article key={q.id} className={`${glass} p-4 flex flex-wrap items-center justify-between gap-3`}>
-                <div>
-                  <p className="font-semibold text-[#0f172a]">{q.title}</p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {q.grade} · {q.subject} · {q.lesson}
-                    {q.topic ? ` · ${q.topic}` : ''} · {q.question_count} questions
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
+              <article
+                key={q.id}
+                className="border border-[var(--board-rule)] bg-[var(--board-steel)] p-4 flex flex-wrap items-center justify-between gap-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <FlapRow
+                    className="!border-b-0 !px-0 !py-0"
+                    cols={[
+                      { label: q.title, width: '1.2fr' },
+                      {
+                        label: `${q.grade} · ${q.subject} · ${q.lesson}${q.topic ? ` · ${q.topic}` : ''} · ${q.question_count} questions`,
+                        width: '2fr',
+                        mute: true,
+                      },
+                    ]}
+                  />
+                  <p className="text-xs text-[var(--flap-mute)] mt-1 px-2 font-[family-name:var(--font-body)]">
                     {q.status === 'published' ? `Published ${formatWhen(q.published_at)}` : 'Draft'}
                     {` · ${q.students_attempted || 0} attempted · ${q.students_completed || 0} completed`}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button type="button" className="px-3 py-1.5 rounded-lg text-sm bg-white border border-slate-200 cursor-pointer" onClick={() => openQuiz(q.id)}>
+                  <FlapButton variant="ghost" onClick={() => openQuiz(q.id)}>
                     Preview
-                  </button>
+                  </FlapButton>
                   {q.status === 'published' ? (
-                    <button type="button" className="px-3 py-1.5 rounded-lg text-sm bg-[#0ea5e9] text-white border-none cursor-pointer" onClick={() => openAnalytics(q.id)}>
+                    <FlapButton variant="amber" onClick={() => openAnalytics(q.id)}>
                       Analytics
-                    </button>
+                    </FlapButton>
                   ) : null}
-                  <button type="button" className="px-3 py-1.5 rounded-lg text-sm text-rose-700 bg-rose-50 border-none cursor-pointer" onClick={() => removeQuiz(q.id)}>
+                  <FlapButton variant="danger" onClick={() => removeQuiz(q.id)}>
                     Delete
-                  </button>
+                  </FlapButton>
                 </div>
               </article>
             ))
@@ -339,22 +371,23 @@ export default function TeacherQuizzes() {
       )}
 
       {view === 'create' && (
-        <div className={`${glass} p-6 space-y-4 max-w-2xl`}>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Grade → Board → Subject → Lesson → Topic</p>
+        <FlapPanel className="p-6 space-y-4 max-w-2xl">
+          <p className="font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] text-[var(--flap-mute)]">
+            Grade → Board → Subject → Lesson → Topic
+          </p>
           {!curriculum?.teacher_subjects?.length ? (
-            <p className="text-sm text-amber-900 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              Add the subjects you teach in your profile before creating a quiz.
-            </p>
+            <p className={noticeAmber}>Add the subjects you teach in your profile before creating a quiz.</p>
           ) : null}
           {curriculum?.teacher_subjects?.length && !grades.length ? (
-            <p className="text-sm text-amber-900 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              No syllabus found for your subjects ({curriculum.teacher_subjects.join(', ')}). Update the subjects on your profile if this looks wrong.
+            <p className={noticeAmber}>
+              No syllabus found for your subjects ({curriculum.teacher_subjects.join(', ')}). Update the subjects on your
+              profile if this looks wrong.
             </p>
           ) : null}
-          <label className="block text-sm font-medium">
+          <label className={labelClass}>
             Grade
             <select
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+              className={fieldClass}
               value={form.grade_key}
               onChange={(e) => selectClass('grade_key', e.target.value)}
             >
@@ -366,10 +399,10 @@ export default function TeacherQuizzes() {
               ))}
             </select>
           </label>
-          <label className="block text-sm font-medium">
+          <label className={labelClass}>
             Board / class
             <select
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+              className={fieldClass}
               value={form.grade_id}
               onChange={(e) => selectClass('grade_id', e.target.value)}
               disabled={!form.grade_key}
@@ -384,14 +417,14 @@ export default function TeacherQuizzes() {
             </select>
           </label>
           {selectedGrade?.fallback || selectedBoard?.fallback ? (
-            <p className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+            <p className={`${noticeAmber} text-xs`}>
               Detailed syllabus is seeded for Grade 7. Lessons below are the closest matching curriculum for this grade.
             </p>
           ) : null}
-          <label className="block text-sm font-medium">
+          <label className={labelClass}>
             Subject
             <select
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+              className={fieldClass}
               value={form.subject_id}
               onChange={(e) => selectClass('subject_id', e.target.value)}
               disabled={!form.grade_id}
@@ -403,12 +436,12 @@ export default function TeacherQuizzes() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-500 mt-1">Only subjects you teach are listed.</p>
+            <p className="text-xs text-[var(--flap-mute)] mt-1">Only subjects you teach are listed.</p>
           </label>
-          <label className="block text-sm font-medium">
+          <label className={labelClass}>
             Syllabus / lesson
             <select
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+              className={fieldClass}
               value={form.lesson_id}
               onChange={(e) => selectClass('lesson_id', e.target.value)}
               disabled={!form.subject_id}
@@ -421,10 +454,10 @@ export default function TeacherQuizzes() {
               ))}
             </select>
           </label>
-          <label className="block text-sm font-medium">
+          <label className={labelClass}>
             Topic (optional)
             <select
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+              className={fieldClass}
               value={form.topic_id}
               onChange={(e) => selectClass('topic_id', e.target.value)}
               disabled={!form.lesson_id}
@@ -438,21 +471,21 @@ export default function TeacherQuizzes() {
             </select>
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-sm font-medium">
+            <label className={labelClass}>
               Number of questions
-              <input
+              <FlapInput
                 type="number"
                 min={1}
                 max={20}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                className="mt-1"
                 value={form.question_count}
                 onChange={(e) => setForm((p) => ({ ...p, question_count: e.target.value }))}
               />
             </label>
-            <label className="block text-sm font-medium">
+            <label className={labelClass}>
               Difficulty
               <select
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                className={fieldClass}
                 value={form.difficulty}
                 onChange={(e) => setForm((p) => ({ ...p, difficulty: e.target.value }))}
               >
@@ -462,35 +495,32 @@ export default function TeacherQuizzes() {
               </select>
             </label>
           </div>
-          <button
-            type="button"
-            disabled={Boolean(busy)}
-            onClick={generate}
-            className="px-4 py-2.5 rounded-xl bg-[#2563eb] text-white text-sm font-semibold border-none cursor-pointer disabled:opacity-60"
-          >
+          <FlapButton type="button" disabled={Boolean(busy)} onClick={generate} variant="amber">
             {busy === 'generate' ? 'Generating with AI…' : 'Generate quiz (AI mode)'}
-          </button>
-        </div>
+          </FlapButton>
+        </FlapPanel>
       )}
 
       {view === 'editor' && draft && (
         <div className="space-y-4">
-          <div className={`${glass} p-4 flex flex-wrap items-center justify-between gap-3`}>
+          <FlapPanel className="p-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-semibold text-[#0f172a]">{draft.quiz.title}</p>
-              <p className="text-xs text-slate-500">
+              <p className="font-[family-name:var(--font-flap)] font-semibold tracking-[0.06em] uppercase text-[var(--flap-ink)]">
+                {draft.quiz.title}
+              </p>
+              <p className="text-xs text-[var(--flap-mute)]">
                 {draft.quiz.grade} · {draft.quiz.subject} · {draft.quiz.lesson} · {draft.quiz.status}
               </p>
             </div>
-            <button
+            <FlapButton
               type="button"
               disabled={Boolean(busy) || draft.quiz.status === 'published'}
               onClick={publish}
-              className="px-4 py-2 rounded-xl bg-[#0ea5e9] text-white text-sm font-semibold border-none cursor-pointer disabled:opacity-60"
+              variant="amber"
             >
               {draft.quiz.status === 'published' ? 'Published to class' : busy === 'publish' ? 'Publishing…' : 'Publish to class'}
-            </button>
-          </div>
+            </FlapButton>
+          </FlapPanel>
           {questions.map((q, i) => (
             <QuestionEditor
               key={q.id}
@@ -512,17 +542,10 @@ export default function TeacherQuizzes() {
       )}
 
       {view === 'analytics' && analytics && (
-        <AnalyticsView
-          analytics={analytics}
-          busy={busy}
-          onInsights={runInsights}
-          onStudent={openStudent}
-        />
+        <AnalyticsView analytics={analytics} busy={busy} onInsights={runInsights} onStudent={openStudent} />
       )}
 
-      {view === 'student' && studentInsight && (
-        <StudentInsightView data={studentInsight} />
-      )}
+      {view === 'student' && studentInsight && <StudentInsightView data={studentInsight} />}
     </div>
   )
 }
@@ -530,33 +553,33 @@ export default function TeacherQuizzes() {
 function QuestionEditor({ question, index, busy, onChange, onSave, onRegen, onRemove }) {
   const options = Array.isArray(question.options) ? question.options : []
   return (
-    <article className={`${glass} p-4 space-y-3`}>
+    <article className="border border-[var(--board-rule)] bg-[var(--board-steel)] p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+        <p className="font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] text-[var(--flap-mute)]">
           Q{index + 1} · {question.type}
         </p>
         <div className="flex gap-2">
-          <button type="button" className="text-xs border-none bg-white px-2 py-1 rounded-lg cursor-pointer" onClick={onSave} disabled={Boolean(busy)}>
+          <FlapButton variant="ghost" onClick={onSave} disabled={Boolean(busy)}>
             Save
-          </button>
-          <button type="button" className="text-xs border-none bg-amber-50 px-2 py-1 rounded-lg cursor-pointer" onClick={onRegen} disabled={Boolean(busy)}>
+          </FlapButton>
+          <FlapButton variant="amber" onClick={onRegen} disabled={Boolean(busy)}>
             {busy === `r-${question.id}` ? 'Regenerating…' : 'Regenerate'}
-          </button>
-          <button type="button" className="text-xs border-none bg-rose-50 text-rose-700 px-2 py-1 rounded-lg cursor-pointer" onClick={onRemove}>
+          </FlapButton>
+          <FlapButton variant="danger" onClick={onRemove}>
             Remove
-          </button>
+          </FlapButton>
         </div>
       </div>
       <textarea
-        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm min-h-[72px]"
+        className="w-full border border-[var(--board-rule)] bg-[var(--flap-face)] text-[var(--flap-ink)] px-3 py-2 text-sm min-h-[72px] outline-none focus:border-[var(--flap-amber)] font-[family-name:var(--font-body)]"
         value={question.prompt}
         onChange={(e) => onChange({ ...question, prompt: e.target.value })}
       />
       {options.map((opt, oi) => (
         <div key={opt.id || oi} className="flex items-center gap-2">
-          <span className="text-xs font-semibold w-6">{opt.id}</span>
-          <input
-            className="flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          <span className="text-xs font-semibold w-6 text-[var(--flap-ink)]">{opt.id}</span>
+          <FlapInput
+            className="flex-1"
             value={opt.text}
             onChange={(e) => {
               const next = options.map((o, idx) => (idx === oi ? { ...o, text: e.target.value } : o))
@@ -565,18 +588,18 @@ function QuestionEditor({ question, index, busy, onChange, onSave, onRegen, onRe
           />
         </div>
       ))}
-      <label className="block text-xs font-medium text-slate-600">
+      <label className="block text-xs font-medium text-[var(--flap-mute)]">
         Correct answer
-        <input
-          className="mt-1 w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+        <FlapInput
+          className="mt-1"
           value={question.correct_answer || ''}
           onChange={(e) => onChange({ ...question, correct_answer: e.target.value })}
         />
       </label>
-      <label className="block text-xs font-medium text-slate-600">
+      <label className="block text-xs font-medium text-[var(--flap-mute)]">
         Explanation
         <textarea
-          className="mt-1 w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm min-h-[64px]"
+          className="mt-1 w-full border border-[var(--board-rule)] bg-[var(--flap-face)] text-[var(--flap-ink)] px-2 py-1.5 text-sm min-h-[64px] outline-none focus:border-[var(--flap-amber)] font-[family-name:var(--font-body)]"
           value={question.explanation || ''}
           onChange={(e) => onChange({ ...question, explanation: e.target.value })}
         />
@@ -590,81 +613,99 @@ function AnalyticsView({ analytics, busy, onInsights, onStudent }) {
   const maxBucket = Math.max(1, ...(analytics.overall?.score_distribution || []).map((b) => b.count))
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Average score" value={o.average_score != null ? `${o.average_score}%` : null} />
-        <Stat label="Highest" value={o.highest_score != null ? `${o.highest_score}%` : null} />
-        <Stat label="Lowest" value={o.lowest_score != null ? `${o.lowest_score}%` : null} />
-        <Stat label="Median" value={o.median_score != null ? `${o.median_score}%` : null} />
-        <Stat label="Completion" value={`${o.completion_rate || 0}%`} />
-        <Stat label="Avg time" value={o.average_time_ms ? `${Math.round(o.average_time_ms / 1000)}s` : '—'} />
-        <Stat label="Attempted" value={o.attempted} />
-        <Stat label="Completed" value={o.completed} />
-      </div>
-      <section className={`${glass} p-4`}>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 mb-3">Score distribution</p>
-        <div className="flex items-end gap-2 h-32">
-          {(o.score_distribution || []).map((b) => (
-            <div key={b.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-              <div
-                className="w-full rounded-t-lg bg-[#2563eb]/80 min-h-[4px]"
-                style={{ height: `${(b.count / maxBucket) * 100}%` }}
-              />
-              <span className="text-[10px] text-slate-500">{b.label}</span>
-            </div>
-          ))}
+      <StatRows
+        rows={[
+          { label: 'Average score', value: o.average_score != null ? `${o.average_score}%` : '—', amber: true },
+          { label: 'Highest', value: o.highest_score != null ? `${o.highest_score}%` : '—' },
+          { label: 'Lowest', value: o.lowest_score != null ? `${o.lowest_score}%` : '—' },
+          { label: 'Median', value: o.median_score != null ? `${o.median_score}%` : '—' },
+          { label: 'Completion', value: `${o.completion_rate || 0}%` },
+          { label: 'Avg time', value: o.average_time_ms ? `${Math.round(o.average_time_ms / 1000)}s` : '—' },
+          { label: 'Attempted', value: o.attempted },
+          { label: 'Completed', value: o.completed },
+        ]}
+      />
+      <FlapPanel>
+        <FlapPanelHead title="Score distribution" />
+        <div className="p-4">
+          <div className="flex items-end gap-2 h-32">
+            {(o.score_distribution || []).map((b) => (
+              <div key={b.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                <div
+                  className="w-full bg-[var(--flap-amber)] min-h-[4px]"
+                  style={{ height: `${(b.count / maxBucket) * 100}%` }}
+                />
+                <span className="text-[10px] text-[var(--flap-mute)]">{b.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </section>
-      <section className={`${glass} p-4 space-y-3`}>
+      </FlapPanel>
+      <FlapPanel className="p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Learning insights</p>
-          <button type="button" onClick={onInsights} className="text-sm text-[#2563eb] border-none bg-transparent cursor-pointer">
+          <p className="font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] text-[var(--flap-mute)]">
+            Learning insights
+          </p>
+          <FlapButton variant="ghost" onClick={onInsights}>
             {busy === 'insights' ? 'Analyzing…' : 'Generate AI insights'}
-          </button>
+          </FlapButton>
         </div>
         {analytics.insights ? (
-          <div className="text-sm text-slate-700 space-y-2">
-            <p className="font-semibold text-[#0f172a]">{analytics.insights.headline}</p>
+          <div className="text-sm text-[var(--flap-ink)] space-y-2 font-[family-name:var(--font-body)]">
+            <p className="font-semibold">{analytics.insights.headline}</p>
             <p>{analytics.insights.narrative}</p>
             {analytics.insights.revision_topics?.length ? (
-              <p><span className="font-medium">Revise:</span> {analytics.insights.revision_topics.join(', ')}</p>
+              <p>
+                <span className="font-medium">Revise:</span> {analytics.insights.revision_topics.join(', ')}
+              </p>
             ) : null}
             {analytics.insights.strengths?.length ? (
-              <p><span className="font-medium">Strong:</span> {analytics.insights.strengths.join(', ')}</p>
+              <p>
+                <span className="font-medium">Strong:</span> {analytics.insights.strengths.join(', ')}
+              </p>
             ) : null}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Generate insights after students complete the quiz.</p>
+          <p className="text-sm text-[var(--flap-mute)]">Generate insights after students complete the quiz.</p>
         )}
-      </section>
+      </FlapPanel>
       <section className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Question-level analysis</p>
+        <p className="font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] text-[var(--flap-mute)]">
+          Question-level analysis
+        </p>
         {(analytics.questions || []).map((q, i) => (
-          <article key={q.id} className={`${glass} p-4 text-sm`}>
-            <p className="font-medium text-[#0f172a]">Q{i + 1}. {q.prompt}</p>
-            <p className="text-xs text-slate-500 mt-2">
-              Correct {q.percent_correct ?? '—'}% · Incorrect {q.percent_incorrect ?? '—'}% · {q.difficulty} · hints {q.students_needed_hints} · avg {Math.round((q.average_time_ms || 0) / 1000)}s
+          <article key={q.id} className="border border-[var(--board-rule)] bg-[var(--board-steel)] p-4 text-sm text-[var(--flap-ink)]">
+            <p className="font-medium">
+              Q{i + 1}. {q.prompt}
             </p>
-            {q.most_selected_wrong ? <p className="text-xs mt-1">Most common wrong: {q.most_selected_wrong}</p> : null}
+            <p className="text-xs text-[var(--flap-mute)] mt-2">
+              Correct {q.percent_correct ?? '—'}% · Incorrect {q.percent_incorrect ?? '—'}% · {q.difficulty} · hints{' '}
+              {q.students_needed_hints} · avg {Math.round((q.average_time_ms || 0) / 1000)}s
+            </p>
+            {q.most_selected_wrong ? (
+              <p className="text-xs mt-1">Most common wrong: {q.most_selected_wrong}</p>
+            ) : null}
             {q.common_misconceptions?.length ? (
               <p className="text-xs mt-1">Misconceptions: {q.common_misconceptions.join('; ')}</p>
             ) : null}
           </article>
         ))}
       </section>
-      <section className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Students</p>
+      <section className="space-y-0 border border-[var(--board-rule)]">
+        <FlapPanelHead title="Students" />
         {(analytics.students || []).map((s) => (
-          <button
+          <FlapRow
             key={s.student_id}
-            type="button"
             onClick={() => onStudent(s.student_id)}
-            className={`${glass} p-3 w-full text-left cursor-pointer border-none`}
-          >
-            <span className="font-medium">{s.name}</span>
-            <span className="text-xs text-slate-500 ml-2">
-              {s.status} {s.score != null ? `· ${s.score}%` : ''}
-            </span>
-          </button>
+            cols={[
+              { label: s.name, width: '1.4fr' },
+              {
+                label: `${s.status}${s.score != null ? ` · ${s.score}%` : ''}`,
+                width: '1fr',
+                mute: true,
+              },
+            ]}
+          />
         ))}
       </section>
     </div>
@@ -675,27 +716,44 @@ function StudentInsightView({ data }) {
   const scores = (data.history || []).map((h) => h.score)
   return (
     <div className="space-y-4">
-      <div className={`${glass} p-5`}>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Student insight</p>
-        <p className="text-lg font-semibold text-[#0f172a] mt-2">{data.student?.name || 'Student'}</p>
-        {data.insights?.headline ? <p className="mt-3 text-sm">{data.insights.headline}</p> : null}
+      <FlapPanel className="p-5">
+        <p className="font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] text-[var(--flap-mute)]">
+          Student insight
+        </p>
+        <p className="text-lg font-semibold text-[var(--flap-ink)] mt-2">{data.student?.name || 'Student'}</p>
+        {data.insights?.headline ? <p className="mt-3 text-sm text-[var(--flap-ink)]">{data.insights.headline}</p> : null}
         {data.insights?.recommendation ? (
-          <p className="mt-2 text-sm text-slate-600">{data.insights.recommendation}</p>
+          <p className="mt-2 text-sm text-[var(--flap-mute)]">{data.insights.recommendation}</p>
         ) : null}
-        <div className="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
-          <p><span className="font-medium">Strong:</span> {(data.insights?.strong_topics || []).join(', ') || '—'}</p>
-          <p><span className="font-medium">Weak:</span> {(data.insights?.weak_topics || []).join(', ') || '—'}</p>
-          <p className="sm:col-span-2"><span className="font-medium">Time:</span> {data.insights?.time_pattern || '—'}</p>
-          <p className="sm:col-span-2"><span className="font-medium">Improvement:</span> {data.insights?.improvement || '—'}</p>
+        <div className="grid sm:grid-cols-2 gap-3 mt-4 text-sm text-[var(--flap-ink)]">
+          <p>
+            <span className="font-medium">Strong:</span> {(data.insights?.strong_topics || []).join(', ') || '—'}
+          </p>
+          <p>
+            <span className="font-medium">Weak:</span> {(data.insights?.weak_topics || []).join(', ') || '—'}
+          </p>
+          <p className="sm:col-span-2">
+            <span className="font-medium">Time:</span> {data.insights?.time_pattern || '—'}
+          </p>
+          <p className="sm:col-span-2">
+            <span className="font-medium">Improvement:</span> {data.insights?.improvement || '—'}
+          </p>
         </div>
-      </div>
+      </FlapPanel>
       {(data.history || []).map((h) => (
-        <article key={`${h.quiz_id}-${h.completed_at}`} className={`${glass} p-4 text-sm`}>
-          <p className="font-medium">{h.title} · {h.score}%</p>
-          <p className="text-xs text-slate-500">{h.subject} · {h.lesson}</p>
+        <article
+          key={`${h.quiz_id}-${h.completed_at}`}
+          className="border border-[var(--board-rule)] bg-[var(--board-steel)] p-4 text-sm text-[var(--flap-ink)]"
+        >
+          <p className="font-medium">
+            {h.title} · {h.score}%
+          </p>
+          <p className="text-xs text-[var(--flap-mute)]">
+            {h.subject} · {h.lesson}
+          </p>
         </article>
       ))}
-      {scores.length === 0 ? <p className="text-sm text-slate-500">No completed quizzes yet.</p> : null}
+      {scores.length === 0 ? <p className="text-sm text-[var(--flap-mute)]">No completed quizzes yet.</p> : null}
     </div>
   )
 }

@@ -27,9 +27,15 @@ const UPLOAD_OPTIONS = [
     },
 ]
 
+const fieldClass = [
+    'w-full px-3.5 py-2.5 border text-sm outline-none bg-[var(--flap-face)] text-[var(--flap-ink)]',
+    'placeholder:text-[var(--flap-mute)] font-[family-name:var(--font-body)]',
+    'focus:border-[var(--flap-amber)]',
+].join(' ')
+
 function ErrorMsg({ msg }) {
     if (!msg) return null
-    return <p className="text-rose-500 text-xs mt-1.5 font-medium">{msg}</p>
+    return <p className="text-[var(--flap-cancel)] text-xs mt-1.5 font-medium">{msg}</p>
 }
 
 function Step1ContentSetup({ data, onNext }) {
@@ -81,31 +87,27 @@ function Step1ContentSetup({ data, onNext }) {
     }
 
     return (
-        <div className="animate-auth-fade">
+        <div className="animate-auth-fade text-[var(--flap-ink)]">
             {/* Header */}
             <div className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#eff6ff] rounded-full mb-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb]" />
-                    <span className="text-xs font-[600] text-[#2563eb] uppercase tracking-wider">Step 1</span>
-                </div>
-                <h2 className="text-[1.35rem] font-[700] text-[#0b1220] mb-1">Teaching Content Setup</h2>
-                <p className="text-sm text-slate-500">Tell us what kind of content you work with.</p>
+                <h2 className="font-[family-name:var(--font-flap)] text-[1.35rem] font-bold tracking-[0.06em] uppercase text-[var(--flap-ink)] mb-1">Teaching Content Setup</h2>
+                <p className="text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)]">Tell us what kind of content you work with.</p>
             </div>
 
             {/* Upload Preference */}
             <div className="mb-5">
-                <label className="block text-sm font-[600] text-[#0b1220] mb-2.5">
-                    What would you like to upload? <span className="text-rose-500">*</span>
+                <label className="block text-sm font-semibold text-[var(--flap-ink)] mb-2.5">
+                    What would you like to upload? <span className="text-[var(--flap-cancel)]">*</span>
                 </label>
                 <div className="grid gap-2.5">
                     {UPLOAD_OPTIONS.map(opt => (
                         <label
                             key={opt.value}
                             className={[
-                                'flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-150',
+                                'flex items-start gap-3 p-3.5 border cursor-pointer transition-colors',
                                 form.upload_preference === opt.value
-                                    ? 'border-[#2563eb] bg-[#eff6ff]'
-                                    : 'border-slate-200 bg-white hover:border-[#2563eb]/40 hover:bg-[#eff6ff]/50',
+                                    ? 'border-[var(--flap-amber)] bg-[var(--flap-face)]'
+                                    : 'border-[var(--board-rule)] bg-[var(--board-steel)] hover:border-[var(--flap-amber)]/50 hover:bg-[var(--flap-face)]/60',
                             ].join(' ')}
                         >
                             <input
@@ -117,11 +119,11 @@ function Step1ContentSetup({ data, onNext }) {
                                     setForm(prev => ({ ...prev, upload_preference: opt.value }))
                                     setErrors(prev => ({ ...prev, upload_preference: '' }))
                                 }}
-                                className="mt-0.5 accent-[#2563eb]"
+                                className="mt-0.5 accent-[var(--flap-amber)]"
                             />
                             <div>
-                                <p className="font-[600] text-sm text-[#0b1220]">{opt.icon} {opt.label}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">{opt.desc}</p>
+                                <p className="font-semibold text-sm text-[var(--flap-ink)]">{opt.label}</p>
+                                <p className="text-xs text-[var(--flap-mute)] mt-0.5">{opt.desc}</p>
                             </div>
                         </label>
                     ))}
@@ -131,8 +133,8 @@ function Step1ContentSetup({ data, onNext }) {
 
             {/* Grade Selection */}
             <div className="mb-5">
-                <label className="block text-sm font-[600] text-[#0b1220] mb-2.5">
-                    Grade(s) you handle <span className="text-rose-500">*</span>
+                <label className="block text-sm font-semibold text-[var(--flap-ink)] mb-2.5">
+                    Grade(s) you handle <span className="text-[var(--flap-cancel)]">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                     {GRADES.map(grade => (
@@ -141,10 +143,10 @@ function Step1ContentSetup({ data, onNext }) {
                             type="button"
                             onClick={() => toggleGrade(grade)}
                             className={[
-                                'px-3 py-1.5 rounded-full text-xs font-[600] border transition-all duration-150 cursor-pointer',
+                                'px-3 py-1.5 font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.08em] border cursor-pointer transition-colors',
                                 form.grades.includes(grade)
-                                    ? 'bg-[#2563eb] border-[#2563eb] text-white shadow-[0_2px_8px_rgba(37,99,235,0.3)]'
-                                    : 'bg-white border-slate-200 text-slate-600 hover:border-[#2563eb]/50 hover:text-[#2563eb]',
+                                    ? 'bg-[var(--flap-amber)] border-[var(--flap-amber)] text-[var(--board-steel-deep)]'
+                                    : 'bg-[var(--board-steel)] border-[var(--board-rule)] text-[var(--flap-mute)] hover:border-[var(--flap-amber)]/50 hover:text-[var(--flap-ink)]',
                             ].join(' ')}
                         >
                             {grade}
@@ -156,10 +158,10 @@ function Step1ContentSetup({ data, onNext }) {
 
             {/* Subjects */}
             <div className="mb-5">
-                <label className="block text-sm font-[600] text-[#0b1220] mb-1.5">
-                    Subjects you handle <span className="text-rose-500">*</span>
+                <label className="block text-sm font-semibold text-[var(--flap-ink)] mb-1.5">
+                    Subjects you handle <span className="text-[var(--flap-cancel)]">*</span>
                 </label>
-                <p className="text-xs text-slate-400 mb-2">Separate multiple subjects with commas</p>
+                <p className="text-xs text-[var(--flap-mute)] mb-2">Separate multiple subjects with commas</p>
                 <input
                     type="text"
                     placeholder="e.g. Mathematics, Physics, Chemistry"
@@ -169,11 +171,10 @@ function Step1ContentSetup({ data, onNext }) {
                         setErrors(prev => ({ ...prev, subjects: '' }))
                     }}
                     className={[
-                        'w-full px-3.5 py-2.5 rounded-xl border-2 text-sm outline-none transition-all duration-150 bg-white',
-                        'placeholder:text-slate-400 text-[#0b1220]',
+                        fieldClass,
                         errors.subjects
-                            ? 'border-rose-400 focus:border-rose-500'
-                            : 'border-slate-200 focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.12)]',
+                            ? 'border-[var(--flap-cancel)]'
+                            : 'border-[var(--board-rule)]',
                     ].join(' ')}
                 />
                 <ErrorMsg msg={errors.subjects} />
@@ -182,8 +183,8 @@ function Step1ContentSetup({ data, onNext }) {
             {/* Conditional: Number of Syllabi */}
             {showSyllabus && (
                 <div className="mb-5 animate-auth-fade">
-                    <label className="block text-sm font-[600] text-[#0b1220] mb-1.5">
-                        Number of syllabi to upload <span className="text-rose-500">*</span>
+                    <label className="block text-sm font-semibold text-[var(--flap-ink)] mb-1.5">
+                        Number of syllabi to upload <span className="text-[var(--flap-cancel)]">*</span>
                     </label>
                     <input
                         type="number"
@@ -196,11 +197,10 @@ function Step1ContentSetup({ data, onNext }) {
                             setErrors(prev => ({ ...prev, number_of_syllabi: '' }))
                         }}
                         className={[
-                            'w-full px-3.5 py-2.5 rounded-xl border-2 text-sm outline-none transition-all duration-150 bg-white',
-                            'placeholder:text-slate-400 text-[#0b1220]',
+                            fieldClass,
                             errors.number_of_syllabi
-                                ? 'border-rose-400 focus:border-rose-500'
-                                : 'border-slate-200 focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.12)]',
+                                ? 'border-[var(--flap-cancel)]'
+                                : 'border-[var(--board-rule)]',
                         ].join(' ')}
                     />
                     <ErrorMsg msg={errors.number_of_syllabi} />
@@ -210,8 +210,8 @@ function Step1ContentSetup({ data, onNext }) {
             {/* Conditional: Number of Materials */}
             {showMaterials && (
                 <div className="mb-5 animate-auth-fade">
-                    <label className="block text-sm font-[600] text-[#0b1220] mb-1.5">
-                        Number of reference materials to upload <span className="text-rose-500">*</span>
+                    <label className="block text-sm font-semibold text-[var(--flap-ink)] mb-1.5">
+                        Number of reference materials to upload <span className="text-[var(--flap-cancel)]">*</span>
                     </label>
                     <input
                         type="number"
@@ -224,11 +224,10 @@ function Step1ContentSetup({ data, onNext }) {
                             setErrors(prev => ({ ...prev, number_of_materials: '' }))
                         }}
                         className={[
-                            'w-full px-3.5 py-2.5 rounded-xl border-2 text-sm outline-none transition-all duration-150 bg-white',
-                            'placeholder:text-slate-400 text-[#0b1220]',
+                            fieldClass,
                             errors.number_of_materials
-                                ? 'border-rose-400 focus:border-rose-500'
-                                : 'border-slate-200 focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.12)]',
+                                ? 'border-[var(--flap-cancel)]'
+                                : 'border-[var(--board-rule)]',
                         ].join(' ')}
                     />
                     <ErrorMsg msg={errors.number_of_materials} />
@@ -238,7 +237,7 @@ function Step1ContentSetup({ data, onNext }) {
             <button
                 type="button"
                 onClick={handleNext}
-                className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient cursor-pointer transition-transform duration-120 hover:-translate-y-px active:translate-y-0"
+                className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.14em] uppercase bg-[var(--flap-amber)] text-[var(--board-steel-deep)] border-none cursor-pointer hover:brightness-110"
             >
                 Continue to Step 2
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

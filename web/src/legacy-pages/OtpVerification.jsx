@@ -115,37 +115,37 @@ function OtpVerification() {
     }
 
     return (
-        <div className="min-h-screen flex items-stretch justify-center bg-white">
-            <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-white shadow-[0_28px_80px_rgba(9,9,11,0.12)] border border-slate-200 animate-auth-fade md:rounded-[18px] md:overflow-hidden md:self-center md:my-8">
+        <div className="min-h-[100dvh] flex items-stretch justify-center bg-[var(--board-steel-deep)]">
+            <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-[var(--board-steel)] border border-[var(--board-rule)] animate-auth-fade md:self-center md:my-8">
 
-                {/* ── Purple side panel ── */}
-                <aside className="hidden md:flex flex-col justify-end p-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white relative overflow-hidden" aria-hidden="true">
-                    <div className="absolute inset-0 opacity-90 pointer-events-none"
-                        style={{ background: 'radial-gradient(circle at 20% 0,rgba(244,244,245,.22),transparent 60%),radial-gradient(circle at 100% 100%,rgba(14,165,233,.32),transparent 70%)', mixBlendMode: 'screen' }} />
+                <aside className="hidden md:flex flex-col justify-end p-10 bg-[var(--board-steel-deep)] text-[var(--flap-ink)] border-r border-[var(--board-rule)] relative" aria-hidden="true">
                     <div className="relative z-10 max-w-xs">
-                        <p className="text-[1.4rem] font-semibold mb-2">One last step</p>
-                        <p className="text-sm text-white/90">
+                        <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase mb-2">
+                            One last step
+                        </p>
+                        <p className="text-sm text-[var(--flap-mute)] leading-relaxed">
                             We sent a 6-digit code to your email. Enter it below to
                             verify your identity and access your LearnAI workspace.
                         </p>
                     </div>
                 </aside>
 
-                {/* ── OTP panel ── */}
                 <div className="px-7 py-12 md:px-10 flex flex-col justify-center">
                     <header className="mb-7">
-                        <p className="text-[1.6rem] font-[650] text-[#0b1220] mb-0.5">Verify your email</p>
-                        <p className="text-sm text-slate-500">
+                        <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)] mb-0.5">
+                            Verify your email
+                        </p>
+                        <p className="text-sm text-[var(--flap-mute)]">
                             Enter the 6-digit code we sent to your inbox.
                         </p>
                     </header>
 
                     {/* DEV MODE: OTP hint */}
                     {devOtp && (
-                        <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 border-2 border-amber-300 text-center">
-                            <p className="text-xs font-[700] text-amber-600 uppercase tracking-wide mb-1">🔧 Dev Mode — OTP Code</p>
-                            <p className="text-2xl font-[800] tracking-[0.4em] text-amber-700">{devOtp}</p>
-                            <p className="text-[0.65rem] text-amber-500 mt-1">This banner is for testing only</p>
+                        <div className="mb-4 px-4 py-3 border border-[var(--board-rule)] bg-[var(--board-steel-deep)] text-center">
+                            <p className="font-[family-name:var(--font-flap)] text-xs font-semibold text-[var(--flap-amber)] uppercase tracking-wide mb-1">Dev Mode — OTP Code</p>
+                            <p className="font-[family-name:var(--font-flap)] text-2xl font-semibold tracking-[0.4em] text-[var(--flap-ink)]">{devOtp}</p>
+                            <p className="text-[0.65rem] text-[var(--flap-mute)] mt-1">This banner is for testing only</p>
                         </div>
                     )}
 
@@ -163,12 +163,13 @@ function OtpVerification() {
                                 onKeyDown={e => handleKeyDown(e, idx)}
                                 autoFocus={idx === 0}
                                 className={[
-                                    'w-11 h-14 text-center text-[1.35rem] font-[650] rounded-xl border-2 outline-none transition-all duration-150',
-                                    'focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.18)]',
+                                    'w-11 h-14 text-center text-[1.35rem] font-[family-name:var(--font-flap)] font-semibold border outline-none transition-colors duration-150',
+                                    'bg-[var(--board-steel-deep)] text-[var(--flap-ink)]',
+                                    'focus:border-[var(--flap-amber)] focus:ring-1 focus:ring-[var(--flap-amber)]',
                                     digit
-                                        ? 'border-[#2563eb] bg-[#eff6ff]'
-                                        : 'border-slate-200 bg-white text-[#0b1220]',
-                                    error ? 'border-rose-400' : '',
+                                        ? 'border-[var(--flap-amber)]'
+                                        : 'border-[var(--board-rule)]',
+                                    error ? 'border-[var(--flap-cancel)]' : '',
                                 ].join(' ')}
                                 aria-label={`OTP digit ${idx + 1}`}
                             />
@@ -176,25 +177,25 @@ function OtpVerification() {
                     </div>
 
                     {error && (
-                        <p className="text-rose-600 text-sm text-center mb-3 mt-1">{error}</p>
+                        <p className="text-[var(--flap-cancel)] text-sm text-center mb-3 mt-1">{error}</p>
                     )}
 
                     <button
                         type="button"
                         onClick={handleVerify}
                         disabled={submitting}
-                        className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient disabled:opacity-60 cursor-pointer transition-transform duration-120 hover:-translate-y-px active:translate-y-0"
+                        className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase text-[var(--board-steel-deep)] bg-[var(--flap-amber)] border-none disabled:opacity-60 cursor-pointer"
                     >
                         {submitting ? <span className="spinner" aria-label="Loading" /> : 'Verify OTP'}
                     </button>
 
-                    <p className="mt-4 text-center text-sm text-slate-400">
+                    <p className="mt-4 text-center text-sm text-[var(--flap-mute)]">
                         Didn&apos;t receive a code?{' '}
                         <button
                             type="button"
                             onClick={handleResend}
                             disabled={resendResending || resendCountdown > 0 || !user?.id}
-                            className="font-semibold text-brand hover:underline underline-offset-[3px] cursor-pointer bg-transparent border-none p-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:no-underline"
+                            className="font-semibold text-[var(--flap-amber)] hover:underline underline-offset-[3px] cursor-pointer bg-transparent border-none p-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:no-underline"
                         >
                             {resendResending ? 'Sending…' : resendCountdown > 0 ? `Resend OTP in ${resendCountdown}s` : resent ? 'Sent!' : 'Resend OTP'}
                         </button>

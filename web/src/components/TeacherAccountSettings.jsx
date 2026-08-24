@@ -10,9 +10,7 @@ import {
   postTeacherLogoutAllSessions,
   updateTeacherProfile,
 } from '../services/api.js'
-
-const glass =
-  'rounded-2xl border border-white/70 bg-white/75 backdrop-blur-xl shadow-[0_8px_40px_rgba(37,99,235,0.1)] transition-shadow duration-300 hover:shadow-[0_12px_48px_rgba(37,99,235,0.14)]'
+import { FlapPanel, FlapPanelHead, FlapButton, FlapInput } from './ui/Board.jsx'
 
 const EMAIL_STEP_LABELS = ['New email', 'Verify current', 'Verify new', 'Done']
 
@@ -36,7 +34,7 @@ function daysSince(iso) {
 
 /** 4 rules × 25%: 8+ chars, upper+lower, digit, symbol. Full bar = all four (no hidden 12-char requirement). */
 function passwordStrengthLabel(pw) {
-  if (!pw) return { pct: 0, label: 'Enter a password', color: 'bg-slate-200' }
+  if (!pw) return { pct: 0, label: 'Enter a password', color: 'bg-[var(--board-rule)]' }
   let score = 0
   if (pw.length >= 8) score++
   if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++
@@ -44,15 +42,15 @@ function passwordStrengthLabel(pw) {
   if (/[^A-Za-z0-9]/.test(pw)) score++
   const maxScore = 4
   const pct = Math.min(100, (score / maxScore) * 100)
-  if (score <= 1) return { pct, label: 'Weak', color: 'bg-rose-400' }
-  if (score === 2) return { pct, label: 'Fair', color: 'bg-amber-400' }
-  if (score === 3) return { pct, label: 'Good', color: 'bg-emerald-400' }
-  return { pct, label: 'Strong', color: 'bg-[#0ea5e9]' }
+  if (score <= 1) return { pct, label: 'Weak', color: 'bg-[var(--flap-cancel)]' }
+  if (score === 2) return { pct, label: 'Fair', color: 'bg-[var(--flap-amber)]' }
+  if (score === 3) return { pct, label: 'Good', color: 'bg-[var(--flap-ink)]' }
+  return { pct, label: 'Strong', color: 'bg-[var(--flap-amber)]' }
 }
 
 /**
  * Teacher identity & security: profile, password, email (OTP), session controls.
- * Matches LearnAI palette: #2563eb, #0ea5e9, #0f172a.
+ * Split-flap board tokens.
  */
 export default function TeacherAccountSettings({ user, updateUser }) {
   const displayName = user?.name || 'Teacher'
@@ -244,20 +242,22 @@ export default function TeacherAccountSettings({ user, updateUser }) {
 
   if (loading && !profile) {
     return (
-      <div className={`${glass} p-8 text-center text-slate-500 text-sm`}>
-        Loading account settings…
-      </div>
+      <FlapPanel className="p-8 text-center">
+        <p className="font-[family-name:var(--font-flap)] text-sm tracking-[0.1em] uppercase text-[var(--flap-mute)] m-0">
+          Loading account settings…
+        </p>
+      </FlapPanel>
     )
   }
 
   return (
-    <div className="space-y-5 max-w-3xl mx-auto">
+    <div className="space-y-4 max-w-3xl mx-auto">
       {banner.text ? (
         <div
-          className={`rounded-xl px-4 py-2.5 text-sm border ${
+          className={`px-4 py-2.5 text-sm border font-[family-name:var(--font-body)] ${
             banner.type === 'ok'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border-rose-200'
+              ? 'bg-[var(--flap-face)] text-[var(--flap-ink)] border-[var(--board-rule)]'
+              : 'border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)]'
           }`}
         >
           {banner.text}
@@ -265,294 +265,317 @@ export default function TeacherAccountSettings({ user, updateUser }) {
       ) : null}
 
       {/* 1. Profile */}
-      <section className={`${glass} p-5 md:p-6`}>
-        <h2 className="text-base font-semibold text-[#0f172a] mb-1">Profile information</h2>
-        <p className="text-xs text-slate-500 mb-5">
-          Update how you appear to students. Changes apply immediately.
-        </p>
-        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
-          <div className="shrink-0 lg:pt-1">
-            <AvatarUploader
-              key={user?.avatar_url || profile?.avatar_url || 'no-avatar'}
-              displayName={nameValue || displayName}
-              initialUrl={user?.avatar_url || profile?.avatar_url || ''}
-              collapsible
-              className="border-white/60 bg-white/55 backdrop-blur-sm shadow-none"
-              onUploaded={(url) => {
-                setProfile((prev) => ({ ...(prev || {}), avatar_url: url }))
-                updateUser?.({ avatar_url: url })
-              }}
-            />
-          </div>
-          <div className="flex-1 min-w-0 space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5" htmlFor="profile-display-name">
-                Display name
-              </label>
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  id="profile-display-name"
-                  type="text"
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                  className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/35 focus:border-[#2563eb]/40"
-                />
-                <button
-                  type="button"
-                  onClick={saveName}
-                  disabled={nameSaving || !nameValue.trim() || nameValue.trim() === user?.name}
-                  className="shrink-0 whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40 transition-colors"
-                >
-                  {nameSaving ? 'Saving…' : 'Save'}
-                </button>
-              </div>
+      <FlapPanel>
+        <FlapPanelHead title="Profile information" meta="Identity" />
+        <div className="p-4 md:p-5">
+          <p className="text-xs text-[var(--flap-mute)] mb-5 font-[family-name:var(--font-body)]">
+            Update how you appear to students. Changes apply immediately.
+          </p>
+          <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
+            <div className="shrink-0 lg:pt-1">
+              <AvatarUploader
+                key={user?.avatar_url || profile?.avatar_url || 'no-avatar'}
+                displayName={nameValue || displayName}
+                initialUrl={user?.avatar_url || profile?.avatar_url || ''}
+                collapsible
+                className="border-[var(--board-rule)] bg-[var(--flap-face)] shadow-none"
+                onUploaded={(url) => {
+                  setProfile((prev) => ({ ...(prev || {}), avatar_url: url }))
+                  updateUser?.({ avatar_url: url })
+                }}
+              />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5" htmlFor="profile-school">
-                School / institution
-              </label>
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  id="profile-school"
-                  type="text"
-                  value={schoolName}
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  placeholder="e.g. your school name"
-                  className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/35"
-                />
-                <button
-                  type="button"
-                  onClick={saveSchool}
-                  disabled={schoolSaving}
-                  className="shrink-0 whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-semibold border border-[#0ea5e9]/40 text-[#0ea5e9] bg-white/80 hover:bg-[#0ea5e9]/5 disabled:opacity-40 transition-colors"
+            <div className="flex-1 min-w-0 space-y-3">
+              <div>
+                <label
+                  className="block font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-mute)] mb-1.5"
+                  htmlFor="profile-display-name"
                 >
-                  {schoolSaving ? 'Saving…' : 'Save'}
-                </button>
+                  Display name
+                </label>
+                <div className="flex flex-row gap-2 items-center">
+                  <FlapInput
+                    id="profile-display-name"
+                    type="text"
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
+                    className="min-w-0 flex-1"
+                  />
+                  <FlapButton
+                    type="button"
+                    onClick={saveName}
+                    disabled={nameSaving || !nameValue.trim() || nameValue.trim() === user?.name}
+                    variant="primary"
+                    className="shrink-0"
+                  >
+                    {nameSaving ? 'Saving…' : 'Save'}
+                  </FlapButton>
+                </div>
               </div>
+              <div>
+                <label
+                  className="block font-[family-name:var(--font-flap)] text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--flap-mute)] mb-1.5"
+                  htmlFor="profile-school"
+                >
+                  School / institution
+                </label>
+                <div className="flex flex-row gap-2 items-center">
+                  <FlapInput
+                    id="profile-school"
+                    type="text"
+                    value={schoolName}
+                    onChange={(e) => setSchoolName(e.target.value)}
+                    placeholder="e.g. your school name"
+                    className="min-w-0 flex-1"
+                  />
+                  <FlapButton type="button" onClick={saveSchool} disabled={schoolSaving} variant="ghost" className="shrink-0">
+                    {schoolSaving ? 'Saving…' : 'Save'}
+                  </FlapButton>
+                </div>
+              </div>
+              <p className="text-[11px] text-[var(--flap-mute)] pt-0.5 font-[family-name:var(--font-body)] m-0">
+                Signed in as <span className="font-medium text-[var(--flap-ink)]">{user?.email}</span>
+              </p>
             </div>
-            <p className="text-[11px] text-slate-400 pt-0.5">
-              Signed in as <span className="font-medium text-slate-600">{user?.email}</span>
-            </p>
           </div>
         </div>
-      </section>
+      </FlapPanel>
 
       {/* 2. Password */}
-      <section className={`${glass} p-5 md:p-6`}>
-        <h2 className="text-base font-semibold text-[#0f172a] mb-1">Password</h2>
-        <p className="text-xs text-slate-500 mb-4">
-          You&apos;re signed in. Enter and confirm a new password below. No OTP required.
-        </p>
-        <form
-          className="space-y-3 max-w-md"
-          autoComplete="off"
-          onSubmit={(e) => {
-            e.preventDefault()
-            savePassword()
-          }}
-        >
-          <input
-            type="password"
-            name="teacher-account-new-password"
-            autoComplete="new-password"
-            placeholder="New password"
-            value={pwNew}
-            onChange={(e) => setPwNew(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm"
-          />
-          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
-              style={{ width: `${strength.pct}%` }}
-            />
-          </div>
-          <p className="text-[11px] text-slate-500">
-            Strength: {strength.label}
-            <span className="text-slate-400"> · 8+ chars, upper & lower, number, symbol</span>
+      <FlapPanel>
+        <FlapPanelHead title="Password" meta="Security" />
+        <div className="p-4 md:p-5">
+          <p className="text-xs text-[var(--flap-mute)] mb-4 font-[family-name:var(--font-body)]">
+            You&apos;re signed in. Enter and confirm a new password below. No OTP required.
           </p>
-          <input
-            type="password"
-            name="teacher-account-new-password-confirm"
-            autoComplete="new-password"
-            placeholder="Confirm new password"
-            value={pwConfirm}
-            onChange={(e) => setPwConfirm(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm"
-          />
-          <button
-            type="submit"
-            disabled={pwSaving || !pwNew.trim() || !pwConfirm.trim()}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40"
+          <form
+            className="space-y-3 max-w-md"
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              savePassword()
+            }}
           >
-            {pwSaving ? 'Updating…' : 'Update password'}
-          </button>
-        </form>
-      </section>
+            <FlapInput
+              type="password"
+              name="teacher-account-new-password"
+              autoComplete="new-password"
+              placeholder="New password"
+              value={pwNew}
+              onChange={(e) => setPwNew(e.target.value)}
+            />
+            <div className="h-1.5 bg-[var(--board-steel-deep)] overflow-hidden border border-[var(--board-rule)]">
+              <div
+                className={`h-full transition-all duration-300 ${strength.color}`}
+                style={{ width: `${strength.pct}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-[var(--flap-mute)] font-[family-name:var(--font-body)] m-0">
+              Strength: {strength.label}
+              <span className="text-[var(--flap-mute)]"> · 8+ chars, upper & lower, number, symbol</span>
+            </p>
+            <FlapInput
+              type="password"
+              name="teacher-account-new-password-confirm"
+              autoComplete="new-password"
+              placeholder="Confirm new password"
+              value={pwConfirm}
+              onChange={(e) => setPwConfirm(e.target.value)}
+            />
+            <FlapButton type="submit" disabled={pwSaving || !pwNew.trim() || !pwConfirm.trim()} variant="primary">
+              {pwSaving ? 'Updating…' : 'Update password'}
+            </FlapButton>
+          </form>
+        </div>
+      </FlapPanel>
 
       {/* 3. Email change */}
-      <section className={`${glass} p-5 md:p-6`}>
-        <h2 className="text-base font-semibold text-[#0f172a] mb-1">Email address</h2>
-        <p className="text-xs text-slate-500 mb-4">
-          Secure two-step verification with your current and new inboxes (four steps).
-        </p>
+      <FlapPanel>
+        <FlapPanelHead title="Email address" meta="Four steps" />
+        <div className="p-4 md:p-5">
+          <p className="text-xs text-[var(--flap-mute)] mb-4 font-[family-name:var(--font-body)]">
+            Secure two-step verification with your current and new inboxes (four steps).
+          </p>
 
-        <div className="flex gap-1.5 sm:gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 sm:overflow-visible">
-          {EMAIL_STEP_LABELS.map((label, i) => {
-            const n = i + 1
-            const active = emailStep === n
-            const done = emailStep > n
-            return (
-              <div
-                key={label}
-                className={`flex-1 min-w-[4.5rem] sm:min-w-0 text-center py-2 px-1 rounded-xl text-[10px] sm:text-[11px] font-medium transition-all duration-300 whitespace-nowrap ${
-                  active
-                    ? 'bg-[#2563eb] text-white shadow-md'
-                    : done
-                      ? 'bg-[#0ea5e9]/15 text-[#0ea5e9]'
-                      : 'bg-slate-100/80 text-slate-400'
-                }`}
-              >
-                {n}. {label}
-              </div>
-            )
-          })}
-        </div>
-
-        {emailStep === 4 ? (
-          <div className="rounded-xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/20 px-4 py-3 text-sm text-[#075985]">
-            Your email was updated successfully. You can close this section or start another change.
-            <button
-              type="button"
-              onClick={resetEmailFlow}
-              className="ml-2 font-semibold text-[#0ea5e9] underline underline-offset-2"
-            >
-              Change again
-            </button>
-          </div>
-        ) : (
-          <>
-            {emailStep === 1 && (
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <input
-                    type="email"
-                    placeholder="New email address"
-                    value={emailNew}
-                    onChange={(e) => {
-                      setEmailNew(e.target.value)
-                      setEmailStartError('')
-                    }}
-                    aria-invalid={Boolean(emailStartError)}
-                    aria-describedby={emailStartError ? 'email-change-start-error' : undefined}
-                    className={`w-full px-3.5 py-3 rounded-xl border bg-white/80 text-sm ${
-                      emailStartError
-                        ? 'border-rose-400 ring-1 ring-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-300'
-                        : 'border-slate-200/90'
-                    }`}
-                  />
-                  {emailStartError ? (
-                    <p id="email-change-start-error" className="mt-2 text-sm text-rose-700 font-medium" role="alert">
-                      {emailStartError}
-                    </p>
-                  ) : null}
+          <div className="flex gap-1.5 sm:gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 sm:overflow-visible" role="list">
+            {EMAIL_STEP_LABELS.map((label, i) => {
+              const n = i + 1
+              const active = emailStep === n
+              const done = emailStep > n
+              return (
+                <div
+                  key={label}
+                  role="listitem"
+                  aria-current={active ? 'step' : undefined}
+                  className={[
+                    'flex-1 min-w-[4.5rem] sm:min-w-0 text-center font-[family-name:var(--font-flap)] px-2 py-1.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.12em] uppercase border whitespace-nowrap',
+                    active || done
+                      ? 'flap-cell text-[var(--flap-ink)] border-[var(--flap-ink)]/25'
+                      : 'bg-transparent text-[var(--flap-mute)] border-transparent',
+                  ].join(' ')}
+                >
+                  {n}. {label}
                 </div>
-                <button
-                  type="button"
-                  onClick={startEmailChange}
-                  disabled={emailBusy || !emailNew.includes('@')}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40 disabled:hover:bg-[#2563eb] transition-colors shadow-sm"
-                >
-                  {emailBusy ? 'Sending…' : 'Continue'}
-                </button>
-              </div>
-            )}
-            {emailStep === 2 && (
-              <div className="space-y-3 max-w-md">
-                <p className="text-sm text-slate-600">Enter the code sent to your current email ({user?.email}).</p>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="6-digit code"
-                  value={emailOtpOld}
-                  onChange={(e) => setEmailOtpOld(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm tracking-widest"
-                />
-                <button
-                  type="button"
-                  onClick={verifyOld}
-                  disabled={emailBusy || emailOtpOld.length !== 6}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40 transition-colors"
-                >
-                  {emailBusy ? 'Verifying…' : 'Verify & continue'}
-                </button>
-                <button type="button" onClick={resetEmailFlow} className="text-xs text-slate-500">
-                  Cancel
-                </button>
-              </div>
-            )}
-            {emailStep === 3 && (
-              <div className="space-y-3 max-w-md">
-                <p className="text-sm text-slate-600">Enter the code sent to {emailNew || 'your new email'}.</p>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="6-digit code"
-                  value={emailOtpNew}
-                  onChange={(e) => setEmailOtpNew(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200/90 bg-white/80 text-sm tracking-widest"
-                />
-                <button
-                  type="button"
-                  onClick={verifyNew}
-                  disabled={emailBusy || emailOtpNew.length !== 6}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-40 transition-colors"
-                >
-                  {emailBusy ? 'Verifying…' : 'Confirm new email'}
-                </button>
-                <button type="button" onClick={resetEmailFlow} className="text-xs text-slate-500">
-                  Cancel
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </section>
+              )
+            })}
+          </div>
+
+          {emailStep === 4 ? (
+            <div className="border border-[var(--flap-amber)]/40 bg-[var(--flap-amber)]/10 px-4 py-3 text-sm text-[var(--flap-ink)] font-[family-name:var(--font-body)]">
+              Your email was updated successfully. You can close this section or start another change.
+              <button
+                type="button"
+                onClick={resetEmailFlow}
+                className="ml-2 font-[family-name:var(--font-flap)] font-semibold tracking-[0.08em] uppercase text-[var(--flap-amber)] underline underline-offset-2 bg-transparent border-none cursor-pointer p-0"
+              >
+                Change again
+              </button>
+            </div>
+          ) : (
+            <>
+              {emailStep === 1 && (
+                <div className="space-y-4 max-w-md">
+                  <div>
+                    <FlapInput
+                      type="email"
+                      placeholder="New email address"
+                      value={emailNew}
+                      onChange={(e) => {
+                        setEmailNew(e.target.value)
+                        setEmailStartError('')
+                      }}
+                      aria-invalid={Boolean(emailStartError)}
+                      aria-describedby={emailStartError ? 'email-change-start-error' : undefined}
+                      className={
+                        emailStartError
+                          ? 'border-[var(--flap-cancel)] focus:border-[var(--flap-cancel)]'
+                          : ''
+                      }
+                    />
+                    {emailStartError ? (
+                      <p
+                        id="email-change-start-error"
+                        className="mt-2 text-sm text-[var(--flap-cancel)] font-medium font-[family-name:var(--font-body)]"
+                        role="alert"
+                      >
+                        {emailStartError}
+                      </p>
+                    ) : null}
+                  </div>
+                  <FlapButton
+                    type="button"
+                    onClick={startEmailChange}
+                    disabled={emailBusy || !emailNew.includes('@')}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    {emailBusy ? 'Sending…' : 'Continue'}
+                  </FlapButton>
+                </div>
+              )}
+              {emailStep === 2 && (
+                <div className="space-y-3 max-w-md">
+                  <p className="text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)] m-0">
+                    Enter the code sent to your current email ({user?.email}).
+                  </p>
+                  <FlapInput
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="6-digit code"
+                    value={emailOtpOld}
+                    onChange={(e) => setEmailOtpOld(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="tracking-widest"
+                  />
+                  <FlapButton
+                    type="button"
+                    onClick={verifyOld}
+                    disabled={emailBusy || emailOtpOld.length !== 6}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    {emailBusy ? 'Verifying…' : 'Verify & continue'}
+                  </FlapButton>
+                  <button
+                    type="button"
+                    onClick={resetEmailFlow}
+                    className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.12em] uppercase text-[var(--flap-mute)] bg-transparent border-none cursor-pointer p-0"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              {emailStep === 3 && (
+                <div className="space-y-3 max-w-md">
+                  <p className="text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)] m-0">
+                    Enter the code sent to {emailNew || 'your new email'}.
+                  </p>
+                  <FlapInput
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="6-digit code"
+                    value={emailOtpNew}
+                    onChange={(e) => setEmailOtpNew(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="tracking-widest"
+                  />
+                  <FlapButton
+                    type="button"
+                    onClick={verifyNew}
+                    disabled={emailBusy || emailOtpNew.length !== 6}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    {emailBusy ? 'Verifying…' : 'Confirm new email'}
+                  </FlapButton>
+                  <button
+                    type="button"
+                    onClick={resetEmailFlow}
+                    className="font-[family-name:var(--font-flap)] text-[11px] tracking-[0.12em] uppercase text-[var(--flap-mute)] bg-transparent border-none cursor-pointer p-0"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </FlapPanel>
 
       {/* 4. Security */}
-      <section className={`${glass} p-5 md:p-6`}>
-        <h2 className="text-base font-semibold text-[#0f172a] mb-4">Security</h2>
-        <div className="space-y-3 text-sm text-slate-600">
-          <p>
-            <span className="font-medium text-[#0f172a]">Password last changed:</span>{' '}
-            {pwdDays === null ? 'Not recorded yet' : pwdDays === 0 ? 'Today' : `${pwdDays} day${pwdDays === 1 ? '' : 's'} ago`}
-          </p>
-          <p>
-            <span className="font-medium text-[#0f172a]">Email last updated:</span>{' '}
-            {emailDays === null ? 'Not recorded yet' : emailDays === 0 ? 'Today' : `${emailDays} day${emailDays === 1 ? '' : 's'} ago`}
+      <FlapPanel>
+        <FlapPanelHead title="Security" meta="Sessions" />
+        <div className="p-4 md:p-5">
+          <div className="space-y-3 text-sm text-[var(--flap-mute)] font-[family-name:var(--font-body)]">
+            <p className="m-0">
+              <span className="font-medium text-[var(--flap-ink)]">Password last changed:</span>{' '}
+              {pwdDays === null ? 'Not recorded yet' : pwdDays === 0 ? 'Today' : `${pwdDays} day${pwdDays === 1 ? '' : 's'} ago`}
+            </p>
+            <p className="m-0">
+              <span className="font-medium text-[var(--flap-ink)]">Email last updated:</span>{' '}
+              {emailDays === null ? 'Not recorded yet' : emailDays === 0 ? 'Today' : `${emailDays} day${emailDays === 1 ? '' : 's'} ago`}
+            </p>
+          </div>
+          <FlapButton type="button" onClick={logoutAll} disabled={logoutAllBusy} variant="ghost" className="mt-4">
+            {logoutAllBusy ? 'Working…' : 'Log out from all other devices'}
+          </FlapButton>
+          <p className="text-[11px] text-[var(--flap-mute)] mt-2 max-w-md font-[family-name:var(--font-body)]">
+            Ends other browser sessions. This device stays signed in.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={logoutAll}
-          disabled={logoutAllBusy}
-          className="mt-4 px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-        >
-          {logoutAllBusy ? 'Working…' : 'Log out from all other devices'}
-        </button>
-        <p className="text-[11px] text-slate-400 mt-2 max-w-md">
-          Ends other browser sessions. This device stays signed in.
-        </p>
-      </section>
+      </FlapPanel>
 
       {/* 5. Notifications note */}
-      <section className={`${glass} p-4 md:p-5 border-[#0ea5e9]/20 bg-[#0ea5e9]/[0.06]`}>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          <span className="font-semibold text-[#075985]">Notifications:</span> you will be notified by email when your
-          password or email address is changed
-        </p>
-      </section>
+      <FlapPanel className="border-[var(--flap-amber)]/30">
+        <div className="p-4 md:p-5">
+          <p className="text-xs text-[var(--flap-mute)] leading-relaxed font-[family-name:var(--font-body)] m-0">
+            <span className="font-[family-name:var(--font-flap)] font-semibold tracking-[0.08em] uppercase text-[var(--flap-amber)]">
+              Notifications:
+            </span>{' '}
+            you will be notified by email when your password or email address is changed
+          </p>
+        </div>
+      </FlapPanel>
     </div>
   )
 }

@@ -116,7 +116,7 @@ function AvatarUploader({
     <>
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] flex items-center justify-center text-white font-bold shrink-0">
+          <div className="w-12 h-12 rounded-full overflow-hidden border border-[var(--board-rule)] bg-[var(--board-steel-deep)] flex items-center justify-center text-[var(--flap-amber)] font-[family-name:var(--font-flap)] font-bold shrink-0">
             {shownUrl ? (
               <img
                 src={shownUrl}
@@ -129,8 +129,10 @@ function AvatarUploader({
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#0b1220] truncate">Profile photo</p>
-            <p className="text-xs text-slate-500 leading-snug">
+            <p className="text-sm font-semibold text-[var(--flap-ink)] truncate font-[family-name:var(--font-flap)] tracking-[0.06em] uppercase">
+              Profile photo
+            </p>
+            <p className="text-xs text-[var(--flap-mute)] leading-snug">
               Preferred: clean/vectorized profile photo. This will be used in teacher listings and chat.
             </p>
           </div>
@@ -148,7 +150,7 @@ function AvatarUploader({
             type="button"
             onClick={handlePick}
             disabled={uploading}
-            className="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 transition-colors cursor-pointer border-none"
+            className="px-3 py-2 text-[11px] font-semibold tracking-[0.14em] uppercase font-[family-name:var(--font-flap)] text-[var(--board-steel-deep)] bg-[var(--flap-amber)] hover:brightness-110 disabled:opacity-60 transition-colors cursor-pointer border-none"
           >
             {uploading ? 'Uploading…' : 'Upload'}
           </button>
@@ -156,8 +158,8 @@ function AvatarUploader({
       </div>
 
       {previewUrl && (
-        <div className="mt-3 rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
-          <div className="px-3 py-2 text-[11px] text-slate-500 border-b border-slate-100">
+        <div className="mt-3 overflow-hidden border border-[var(--board-rule)] bg-[var(--flap-face)]">
+          <div className="px-3 py-2 text-[11px] text-[var(--flap-mute)] border-b border-[var(--board-rule)] font-[family-name:var(--font-flap)] tracking-[0.08em] uppercase">
             Preview (will be cropped to square automatically)
           </div>
           <div className="p-3 flex items-center justify-center">
@@ -167,7 +169,7 @@ function AvatarUploader({
       )}
 
       {error && (
-        <div className="mt-3 px-3 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-medium">
+        <div className="mt-3 px-3 py-2 border border-[var(--flap-cancel)]/40 bg-[var(--flap-cancel)]/10 text-[var(--flap-cancel)] text-xs font-medium">
           {error}
         </div>
       )}
@@ -176,7 +178,9 @@ function AvatarUploader({
 
   if (!collapsible) {
     return (
-      <div className={`p-4 rounded-2xl border border-slate-100 bg-white shadow-sm ${className}`.trim()}>
+      <div
+        className={`p-4 border border-[var(--board-rule)] bg-[var(--board-steel)] ${className}`.trim()}
+      >
         {uploadBlock}
       </div>
     )
@@ -189,25 +193,28 @@ function AvatarUploader({
       <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="presentation">
         <button
           type="button"
-          className="absolute inset-0 bg-[#0f172a]/50 backdrop-blur-md cursor-default"
+          className="absolute inset-0 bg-[var(--board-steel-deep)]/70 backdrop-blur-md cursor-default"
           aria-label="Close dialog"
           onClick={closeModal}
         />
         <div
-          className="relative z-10 w-full max-w-md max-h-[min(90vh,640px)] overflow-y-auto rounded-2xl border border-white/90 bg-white p-5 shadow-[0_24px_80px_rgba(26,15,30,0.35)]"
+          className="relative z-10 w-full max-w-md max-h-[min(90vh,640px)] overflow-y-auto border border-[var(--board-rule)] bg-[var(--board-steel)] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="avatar-editor-heading"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100/80">
-            <h2 id="avatar-editor-heading" className="text-sm font-semibold text-[#0b1220]">
+          <div className="flex items-center justify-between gap-2 mb-3 pb-3 border-b border-[var(--board-rule)]">
+            <h2
+              id="avatar-editor-heading"
+              className="text-sm font-semibold text-[var(--flap-ink)] font-[family-name:var(--font-flap)] tracking-[0.1em] uppercase"
+            >
               Change profile photo
             </h2>
             <button
               type="button"
               onClick={closeModal}
-              className="text-xs font-semibold text-slate-500 hover:text-[#2563eb] transition-colors"
+              className="text-xs font-semibold tracking-[0.1em] uppercase font-[family-name:var(--font-flap)] text-[var(--flap-mute)] hover:text-[var(--flap-amber)] transition-colors bg-transparent border-none cursor-pointer"
             >
               Done
             </button>
@@ -222,7 +229,7 @@ function AvatarUploader({
     <>
       <div className={`flex flex-col items-start gap-0 ${className}`.trim()}>
         <div className="relative shrink-0">
-          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gradient-to-br from-[#2563eb] to-[#0ea5e9] flex items-center justify-center text-white text-3xl font-bold ring-2 ring-white/80 shadow-md">
+          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border border-[var(--board-rule)] bg-[var(--board-steel-deep)] flex items-center justify-center text-[var(--flap-amber)] text-3xl font-[family-name:var(--font-flap)] font-bold ring-2 ring-[var(--board-rule)]">
             {shownUrl ? (
               <img
                 src={shownUrl}
@@ -240,7 +247,7 @@ function AvatarUploader({
               setError('')
               setExpanded(true)
             }}
-            className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-[#2563eb] text-white shadow-lg ring-2 ring-white hover:bg-[#1d4ed8] transition-colors"
+            className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--flap-amber)] text-[var(--board-steel-deep)] shadow-lg ring-2 ring-[var(--board-rule)] hover:brightness-110 transition-colors border-none cursor-pointer"
             aria-label="Edit profile photo"
           >
             <PencilIcon />

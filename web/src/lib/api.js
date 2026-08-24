@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma.js'
 import { json, parseJsonArray, readJson, slugKey, titleCase } from './http.js'
+import { cacheGet, cacheSet, jsonCached } from './cache.js'
 import {
   isDebug,
   publicUser,
@@ -80,12 +81,16 @@ export async function handleApi(request, slugParts) {
 }
 
 async function boards() {
+  const cacheKey = 'boards:with-grades'
+  const cached = cacheGet(cacheKey)
+  if (cached) return jsonCached({ boards: cached }, { maxAge: 120 })
   const rows = await prisma.board.findMany({
     where: { grades: { some: {} } },
     orderBy: { name: 'asc' },
     select: { id: true, name: true, slug: true },
   })
-  return json({ boards: rows })
+  cacheSet(cacheKey, rows, 120_000)
+  return jsonCached({ boards: rows }, { maxAge: 120 })
 }
 
 async function subjectsGet(request) {
@@ -318,11 +323,27 @@ async function studentDashboard(request) {
   const auth = await requireUser(request, 'student')
   if (auth.error) return auth.error
   const user = auth.user
-  const profile = await prisma.studentProfile.findUnique({ where: { userId: user.id } })
+
+  const profile = await prisma.studentProfile.findUnique({
+    where: { userId: user.id },
+    include: {
+      board: true,
+      boardGrade: true,
+      institution: { select: { id: true, key: true, label: true } },
+    },
+  })
+
   const boardId = profile?.boardId || user.boardId
   const gradeId = profile?.gradeId || user.gradeId
-  const board = boardId ? await prisma.board.findUnique({ where: { id: boardId } }) : null
-  let grade = gradeId ? await prisma.boardGrade.findUnique({ where: { id: gradeId } }) : null
+  let board = profile?.board || null
+  let grade = profile?.boardGrade || null
+
+  if (!board && boardId) {
+    board = await prisma.board.findUnique({ where: { id: boardId } })
+  }
+  if (!grade && gradeId) {
+    grade = await prisma.boardGrade.findUnique({ where: { id: gradeId } })
+  }
   if (!grade && board && (profile?.grade || user.grade)) {
     grade = await prisma.boardGrade.findFirst({
       where: { boardId: board.id, label: profile?.grade || user.grade },
@@ -343,24 +364,27 @@ async function studentDashboard(request) {
     }, 422)
   }
 
-  const curricula = await prisma.curriculum.findMany({
-    where: {
-      boardId: board.id,
-      ...(grade ? { gradeId: grade.id } : { grade: profile?.grade || user.grade }),
-    },
-    include: {
-      subject: { select: { id: true, key: true, label: true } },
-      units: {
-        orderBy: { sortOrder: 'asc' },
-        include: { topics: { orderBy: { sortOrder: 'asc' } } },
+  const curriculumKey = `curriculum:${board.id}:${grade?.id || profile?.grade || user.grade || 'none'}`
+  let curricula = cacheGet(curriculumKey)
+  if (!curricula) {
+    curricula = await prisma.curriculum.findMany({
+      where: {
+        boardId: board.id,
+        ...(grade ? { gradeId: grade.id } : { grade: profile?.grade || user.grade }),
       },
-    },
-  })
+      include: {
+        subject: { select: { id: true, key: true, label: true } },
+        units: {
+          orderBy: { sortOrder: 'asc' },
+          include: { topics: { orderBy: { sortOrder: 'asc' } } },
+        },
+      },
+    })
+    cacheSet(curriculumKey, curricula, 180_000)
+  }
 
+  const institution = profile?.institution || null
   const institutionId = profile?.institutionId || user.institutionId
-  const institution = institutionId
-    ? await prisma.institution.findUnique({ where: { id: institutionId } })
-    : null
 
   return json({
     user: {
@@ -427,20 +451,35 @@ async function teachers(request) {
   const page = Math.max(1, Number(url.searchParams.get('page') || 1))
   const perPage = Math.min(100, Math.max(1, Number(url.searchParams.get('per_page') || 50)))
   const where = { role: 'teacher' }
-  const total = await prisma.user.count({ where })
-  const rows = await prisma.user.findMany({
-    where,
-    orderBy: { name: 'asc' },
-    skip: (page - 1) * perPage,
-    take: perPage,
-    include: { teacherProfile: true, ratingsReceived: true },
-  })
+  const [total, rows] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      select: {
+        id: true,
+        name: true,
+        teacherProfile: {
+          select: {
+            schoolName: true,
+            rating: true,
+            detectedTeachingStyle: true,
+            avatarUrl: true,
+            elevenlabsVoiceId: true,
+            tunePreferences: true,
+            subjects: true,
+          },
+        },
+        _count: { select: { ratingsReceived: true } },
+      },
+    }),
+  ])
   return json({
     teachers: rows.map((t) => {
-      const count = t.ratingsReceived.length
-      const avg = count
-        ? Math.round((t.ratingsReceived.reduce((s, r) => s + r.rating, 0) / count) * 100) / 100
-        : t.teacherProfile?.rating ?? null
+      const count = t._count.ratingsReceived
+      const avg = t.teacherProfile?.rating == null ? null : Number(t.teacherProfile.rating)
       return {
         id: t.id,
         name: t.name,
@@ -516,29 +555,49 @@ function serializeTeacherProfile(profile, extras = {}) {
 async function teacherProfileGet(request) {
   const auth = await requireUser(request, 'teacher')
   if (auth.error) return auth.error
-  await syncTeacherRating(auth.user.id)
-  const profile = await prisma.teacherProfile.findUnique({ where: { userId: auth.user.id } })
-  const ratings = await prisma.teacherRating.findMany({
-    where: { teacherId: auth.user.id },
-    orderBy: { createdAt: 'desc' },
-  })
-  const comments = ratings
-    .filter((r) => r.rating >= 3 && r.feedback)
-    .slice(0, 50)
+  const teacherId = auth.user.id
+  const [profile, ratingAgg, distinctStudents, commentRows] = await Promise.all([
+    prisma.teacherProfile.findUnique({ where: { userId: teacherId } }),
+    prisma.teacherRating.aggregate({
+      where: { teacherId },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+    prisma.teacherRating.findMany({
+      where: { teacherId },
+      distinct: ['studentId'],
+      select: { studentId: true },
+    }),
+    prisma.teacherRating.findMany({
+      where: { teacherId, rating: { gte: 3 }, feedback: { not: null } },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: { feedback: true, rating: true, createdAt: true },
+    }),
+  ])
+  const avg = ratingAgg._avg.rating == null ? null : Math.round(ratingAgg._avg.rating * 100) / 100
+  if (profile && (profile.rating == null || Number(profile.rating) !== avg)) {
+    await prisma.teacherProfile.updateMany({
+      where: { userId: teacherId },
+      data: { rating: avg },
+    })
+  }
+  const comments = commentRows
+    .filter((r) => r.feedback)
     .map((r) => ({
       feedback: r.feedback,
       rating: r.rating,
       created_at: r.createdAt.toISOString(),
     }))
-  const studentsHelped = new Set(ratings.map((r) => r.studentId)).size
   return json({
     user: publicUser(auth.user, {
       password_changed_at: auth.user.passwordChangedAt,
       email_changed_at: auth.user.emailChangedAt,
     }),
     profile: serializeTeacherProfile(profile, {
-      rating_count: ratings.length,
-      students_helped_count: studentsHelped,
+      rating: avg,
+      rating_count: ratingAgg._count.rating,
+      students_helped_count: distinctStudents.length,
       overview_comments: comments,
     }) || {
       onboarding_completed: false,

@@ -7,7 +7,7 @@ const ROLES = [
 
 function RoleToggle({ value, onChange }) {
   return (
-    <div className="inline-flex p-0.5 rounded-full bg-[#eff6ff] border border-[#dbeafe]">
+    <div className="inline-flex p-0.5 bg-[var(--flap-face)] border border-[var(--board-rule)]">
       {ROLES.map((role) => {
         const isActive = role.value === value
         return (
@@ -16,10 +16,10 @@ function RoleToggle({ value, onChange }) {
             type="button"
             onClick={() => onChange(role.value)}
             className={[
-              'px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer',
+              'px-4 py-1.5 font-[family-name:var(--font-flap)] text-xs font-semibold uppercase tracking-[0.14em] transition-colors duration-150 cursor-pointer border-none',
               isActive
-                ? 'bg-gradient-to-br from-brand to-teal text-white shadow-[0_8px_20px_rgba(37,99,235,0.35)] -translate-y-px'
-                : 'text-slate-500 hover:text-slate-700',
+                ? 'bg-[var(--flap-amber)] text-[var(--board-steel-deep)]'
+                : 'bg-transparent text-[var(--flap-mute)] hover:text-[var(--flap-ink)]',
             ].join(' ')}
           >
             {role.label}

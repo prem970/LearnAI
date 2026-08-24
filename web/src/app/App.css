@@ -1,7 +1,7 @@
-/* App.css is mostly replaced by Tailwind. Keep only the #root fill. */
+/* App.css — shell fill only; visual world lives in globals.css */
 #root {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .audio-wave-cluster {
@@ -17,7 +17,7 @@
   width: 4px;
   height: calc(28px * var(--wave-factor, 0.5));
   border-radius: 9999px;
-  background: #0ea5e9;
+  background: var(--flap-amber, #d97706);
   transform-origin: center;
   opacity: 0.85;
 }

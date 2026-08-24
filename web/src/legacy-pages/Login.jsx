@@ -57,31 +57,31 @@ function Login() {
   }
 
   if (!mounted) {
-    return <div className="min-h-screen bg-white" />
+    return <div className="min-h-[100dvh] bg-[var(--board-steel-deep)]" />
   }
 
   return (
-    <div className="min-h-screen flex items-stretch justify-center bg-white">
-      <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-white shadow-[0_28px_80px_rgba(9,9,11,0.12)] border border-slate-200 animate-auth-fade md:rounded-[18px] md:overflow-hidden md:self-center md:my-8">
+    <div className="min-h-[100dvh] flex items-stretch justify-center bg-[var(--board-steel-deep)]">
+      <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-[var(--board-steel)] border border-[var(--board-rule)] animate-auth-fade md:self-center md:my-8">
 
-        {/* ── Purple side panel ── */}
-        <aside className="hidden md:flex flex-col justify-end p-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white relative overflow-hidden" aria-hidden="true">
-          <div className="absolute inset-0 opacity-90 pointer-events-none"
-            style={{ background: 'radial-gradient(circle at 20% 0,rgba(244,244,245,.22),transparent 60%),radial-gradient(circle at 100% 100%,rgba(14,165,233,.32),transparent 70%)', mixBlendMode: 'screen' }} />
+        <aside className="hidden md:flex flex-col justify-end p-10 bg-[var(--board-steel-deep)] text-[var(--flap-ink)] border-r border-[var(--board-rule)] relative" aria-hidden="true">
           <div className="relative z-10 max-w-xs">
-            <p className="text-[1.4rem] font-semibold mb-2">Smarter learning, anytime</p>
-            <p className="text-sm text-white/90">
+            <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase mb-2">
+              Smarter learning, anytime
+            </p>
+            <p className="text-sm text-[var(--flap-mute)] leading-relaxed">
               LearnAI helps students grasp concepts faster with guidance that matches how their teachers explain—while
               making that teaching presence available around the clock, not only during the bell.
             </p>
           </div>
         </aside>
 
-        {/* ── Form panel ── */}
         <div className="px-7 py-9 md:px-10 overflow-y-auto">
           <header className="mb-5">
-            <p className="text-[1.6rem] font-[650] text-[#0b1220] mb-0.5">Welcome back to LearnAI</p>
-            <p className="text-sm text-slate-500">Sign in to learn faster - or to extend your reach to every student, every hour.</p>
+            <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)] mb-0.5">
+              Welcome back to LearnAI
+            </p>
+            <p className="text-sm text-[var(--flap-mute)]">Sign in to learn faster - or to extend your reach to every student, every hour.</p>
           </header>
 
           <div className="mb-4">
@@ -89,7 +89,7 @@ function Login() {
           </div>
 
           {generalError && (
-            <div className="mb-4 px-3 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm">
+            <div className="mb-4 px-3 py-2.5 border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] text-sm">
               {generalError}
             </div>
           )}
@@ -101,15 +101,15 @@ function Login() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient disabled:opacity-60 cursor-pointer transition-transform duration-120 hover:-translate-y-px active:translate-y-0"
+              className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase text-[var(--board-steel-deep)] bg-[var(--flap-amber)] border-none disabled:opacity-60 cursor-pointer"
             >
               {submitting ? <span className="spinner" aria-label="Loading" /> : 'Log in'}
             </button>
           </form>
 
-          <p className="mt-5 text-center text-sm text-slate-400">
+          <p className="mt-5 text-center text-sm text-[var(--flap-mute)]">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-brand hover:underline">Sign up</Link>
+            <Link href="/signup" className="font-semibold text-[var(--flap-amber)] hover:underline">Sign up</Link>
           </p>
         </div>
       </div>

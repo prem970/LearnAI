@@ -249,28 +249,28 @@ function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-stretch justify-center bg-white">
-      <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-white shadow-[0_28px_80px_rgba(9,9,11,0.12)] border border-slate-200 animate-auth-fade md:rounded-[18px] md:overflow-hidden md:self-center md:my-8">
+    <div className="min-h-[100dvh] flex items-stretch justify-center bg-[var(--board-steel-deep)]">
+      <div className="w-full max-w-[960px] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] bg-[var(--board-steel)] border border-[var(--board-rule)] animate-auth-fade md:self-center md:my-8">
 
-        {/* ── Purple side panel ── */}
-        <aside className="hidden md:flex flex-col justify-end p-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white relative overflow-hidden" aria-hidden="true">
-          <div className="absolute inset-0 opacity-90 pointer-events-none"
-            style={{ background: 'radial-gradient(circle at 20% 0,rgba(244,244,245,.22),transparent 60%),radial-gradient(circle at 100% 100%,rgba(14,165,233,.32),transparent 70%)', mixBlendMode: 'screen' }} />
+        <aside className="hidden md:flex flex-col justify-end p-10 bg-[var(--board-steel-deep)] text-[var(--flap-ink)] border-r border-[var(--board-rule)] relative" aria-hidden="true">
           <div className="relative z-10 max-w-xs">
-            <p className="text-[1.4rem] font-semibold mb-2">Learn deeper. Move faster.</p>
-            <p className="text-sm text-white/90">
+            <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase mb-2">
+              Learn deeper. Move faster.
+            </p>
+            <p className="text-sm text-[var(--flap-mute)] leading-relaxed">
               Students get clearer, quicker answers in each teacher&apos;s real style—and teachers stay within reach
               24/7 through AI that carries their voice into every study session.
             </p>
           </div>
         </aside>
 
-        {/* ── Form panel ── */}
         <div className="px-7 py-9 md:px-10 overflow-y-auto min-w-0">
           {!otpStage && (
             <header className="mb-5">
-              <p className="text-[1.6rem] font-[650] text-[#0b1220] mb-0.5">Create your LearnAI account</p>
-              <p className="text-sm text-slate-500">Personalized help for learners; your teaching, always on for them.</p>
+              <p className="font-[family-name:var(--font-flap)] text-[1.6rem] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)] mb-0.5">
+                Create your LearnAI account
+              </p>
+              <p className="text-sm text-[var(--flap-mute)]">Personalized help for learners; your teaching, always on for them.</p>
             </header>
           )}
 
@@ -281,7 +281,7 @@ function Signup() {
           )}
 
           {generalError && (
-            <div className="mb-4 px-3 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-sm">
+            <div className="mb-4 px-3 py-2.5 border border-[var(--flap-cancel)]/50 text-[var(--flap-cancel)] text-sm">
               {generalError}
             </div>
           )}
@@ -347,41 +347,43 @@ function Signup() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient disabled:opacity-60 cursor-pointer transition-transform duration-120 hover:-translate-y-px active:translate-y-0"
+                  className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase text-[var(--board-steel-deep)] bg-[var(--flap-amber)] border-none disabled:opacity-60 cursor-pointer"
                 >
                   {submitting ? <span className="spinner" aria-label="Loading" /> : 'Sign up'}
                 </button>
               </form>
 
-              <p className="mt-5 text-center text-sm text-slate-400">
+              <p className="mt-5 text-center text-sm text-[var(--flap-mute)]">
                 Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-brand hover:underline">Log in</Link>
+                <Link href="/login" className="font-semibold text-[var(--flap-amber)] hover:underline">Log in</Link>
               </p>
             </>
           ) : (
             <div className="mt-2">
               <header className="mb-5">
-                <p className="text-[1.4rem] font-[650] text-[#0b1220] mb-0.5">Verify your email</p>
-                <p className="text-sm text-slate-500">Email OTP is paused during development. Use the code below to continue.</p>
+                <p className="font-[family-name:var(--font-flap)] text-[1.4rem] font-semibold tracking-[0.04em] uppercase text-[var(--flap-ink)] mb-0.5">
+                  Verify your email
+                </p>
+                <p className="text-sm text-[var(--flap-mute)]">Email OTP is paused during development. Use the code below to continue.</p>
               </header>
 
-              <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-center">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-800">Developing Period</p>
-                <p className="mt-2 text-3xl font-[800] tracking-[0.35em] text-[#0f172a] tabular-nums">
+              <div className="mb-5 border border-[var(--board-rule)] bg-[var(--board-steel-deep)] px-4 py-4 text-center">
+                <p className="font-[family-name:var(--font-flap)] text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--flap-amber)]">Developing Period</p>
+                <p className="mt-2 font-[family-name:var(--font-flap)] text-3xl font-semibold tracking-[0.35em] text-[var(--flap-ink)] tabular-nums">
                   {displayedOtp || '------'}
                 </p>
-                <p className="mt-2 text-xs text-amber-900/80">This code is shown only while email delivery is off.</p>
+                <p className="mt-2 text-xs text-[var(--flap-mute)]">This code is shown only while email delivery is off.</p>
               </div>
 
               {otpError && (
-                <p className="text-rose-600 text-sm text-center mb-2">{otpError}</p>
+                <p className="text-[var(--flap-cancel)] text-sm text-center mb-2">{otpError}</p>
               )}
 
               <button
                 type="button"
                 onClick={handleVerifyOtp}
                 disabled={otpSubmitting || !displayedOtp}
-                className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-white btn-gradient disabled:opacity-60 cursor-pointer"
+                className="w-full mt-1 flex items-center justify-center gap-2 px-4 py-2.5 font-[family-name:var(--font-flap)] font-semibold tracking-[0.12em] uppercase text-[var(--board-steel-deep)] bg-[var(--flap-amber)] border-none disabled:opacity-60 cursor-pointer"
               >
                 {otpSubmitting ? <span className="spinner" aria-label="Loading" /> : 'Continue'}
               </button>

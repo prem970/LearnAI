@@ -2,8 +2,19 @@ import { prisma } from './prisma.js'
 import { chatCompletion } from './openai.js'
 import { parseJsonArray } from './http.js'
 import { matchTeacherSubject, teacherSubjectList } from './teacherSubjects.js'
+import { createBoundedTtlCache } from './cache.js'
 
 let tableReady = false
+const insightCache = createBoundedTtlCache({ max: 48, ttlMs: 10 * 60_000 })
+let insightCacheTeacherId = null
+
+export function invalidateInsightCache(teacherId) {
+  if (teacherId != null && insightCacheTeacherId != null && Number(teacherId) !== insightCacheTeacherId) {
+    return
+  }
+  insightCache.clear()
+  insightCacheTeacherId = null
+}
 
 export async function ensureLearnTurnsTable() {
   if (tableReady) return
@@ -64,6 +75,7 @@ export async function recordLearnTurn({ studentId, teacherId, subject, lesson, t
          ${topicJson}, ${q.slice(0, 8000)}, ${previewAnswer(answer)},
          ${responseMode ? String(responseMode).slice(0, 32) : null}, NOW())
     `
+    invalidateInsightCache(teacher)
     return true
   } catch (error) {
     console.error('recordLearnTurn failed', error)
@@ -126,8 +138,6 @@ function heuristicInsights(subject, rows, todayRows) {
   }
   return insights.slice(0, 5)
 }
-
-const insightCache = new Map()
 
 async function llmInsights(subject, rows) {
   const sample = rows.slice(0, 24).map((r) => ({
@@ -211,8 +221,9 @@ export async function buildTeacherInsights(teacherId) {
     }
     let insights = heuristicInsights(subject, list, todayRows)
     const cacheKey = `${teacherId}:${subject}:${list[0]?.id}:${list.length}`
-    if (insightCache.has(cacheKey)) {
-      insights = insightCache.get(cacheKey)
+    const cached = insightCache.get(cacheKey)
+    if (cached) {
+      insights = cached
     } else {
       try {
         const generated = await llmInsights(subject, list)
@@ -241,10 +252,10 @@ export async function buildTeacherInsights(teacherId) {
     }
   }
 
-  const subjects = []
-  for (const [subject, list] of bySubject) {
-    subjects.push(await insightsFor(subject, list))
-  }
+  insightCacheTeacherId = Number(teacherId)
+  const subjects = await Promise.all(
+    [...bySubject.entries()].map(([subject, list]) => insightsFor(subject, list)),
+  )
 
   subjects.sort((a, b) => b.question_count - a.question_count || a.subject.localeCompare(b.subject))
   const matchedRows = [...bySubject.values()].flat()

@@ -15,15 +15,15 @@ function FormInput({
   const id = rest.id ?? name
 
   const baseInput =
-    `w-full rounded-xl border px-3 py-2.5 text-sm font-[inherit] bg-white text-[#0b1220] ` +
+    `w-full border px-3 py-2.5 text-sm font-[inherit] bg-[var(--flap-face)] text-[var(--flap-ink)] ` +
     `transition-[border-color,box-shadow] duration-200 outline-none ` +
-    `focus:border-brand focus:ring-1 focus:ring-brand/30 ` +
-    (error ? 'border-rose-500' : 'border-slate-200')
+    `focus:border-[var(--flap-amber)] focus:ring-1 focus:ring-[var(--flap-amber)]/30 ` +
+    (error ? 'border-[var(--flap-cancel)]' : 'border-[var(--board-rule)]')
 
   if (as === 'select') {
     return (
       <div className="grid gap-1 min-w-0">
-        <label htmlFor={id} className="text-sm font-medium text-[#0b1220]">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-[var(--flap-ink)]">{label}</label>
         <select
           id={id}
           name={name}
@@ -37,7 +37,7 @@ function FormInput({
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        {error && <p className="text-xs text-rose-500 mt-0.5">{error}</p>}
+        {error && <p className="text-xs text-[var(--flap-cancel)] mt-0.5">{error}</p>}
       </div>
     )
   }
@@ -45,21 +45,21 @@ function FormInput({
   if (as === 'select-multiple') {
     return (
       <div className="grid gap-1">
-        <label htmlFor={id} className="text-sm font-medium text-[#0b1220]">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-[var(--flap-ink)]">{label}</label>
         <select id={id} name={name} multiple value={value} onChange={onChange}
           className={`${baseInput} min-h-[3.2rem]`} {...rest}>
           {options?.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        {error && <p className="text-xs text-rose-500 mt-0.5">{error}</p>}
+        {error && <p className="text-xs text-[var(--flap-cancel)] mt-0.5">{error}</p>}
       </div>
     )
   }
 
   return (
     <div className="grid gap-1" suppressHydrationWarning>
-      <label htmlFor={id} className="text-sm font-medium text-[#0b1220]">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium text-[var(--flap-ink)]">{label}</label>
       <input
         id={id}
         name={name}
@@ -72,7 +72,7 @@ function FormInput({
         autoComplete={type === 'password' ? 'current-password' : type === 'email' ? 'email' : undefined}
         {...rest}
       />
-      {error && <p className="text-xs text-rose-500 mt-0.5">{error}</p>}
+      {error && <p className="text-xs text-[var(--flap-cancel)] mt-0.5">{error}</p>}
     </div>
   )
 }
