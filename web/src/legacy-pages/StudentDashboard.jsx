@@ -8,6 +8,10 @@ import {
 } from '../data/studentDashboardMock.js'
 import { buildTeacherSystemPrompt, buildUserMessageWithContext } from '../prompts/teacherSystemPrompt.js'
 import {
+  buildStoryModeSystemPrompt,
+  buildStoryModeUserMessage,
+} from '../prompts/storyModePrompt.js'
+import {
   buildHomeworkHintSystemPrompt,
   buildHomeworkHintUserText,
 } from '../prompts/homeworkHintPrompt.js'
@@ -1167,6 +1171,62 @@ function StudentDashboard() {
       data?.answer || error?.message || 'Could not generate summary. Please try again.'
     )
   }
+
+  const handleStoryMode = async (item) => {
+    if (!item?.answer || !selectedSubject || !selectedLesson || item.storyLoading) return
+
+    setQaThread((prev) =>
+      prev.map((q) =>
+        q.id === item.id ? { ...q, storyLoading: true, storyError: null } : q,
+      ),
+    )
+
+    const systemPrompt = buildStoryModeSystemPrompt({
+      subject: selectedSubject,
+      lesson: selectedLesson,
+      grade: gradeLabel || '7',
+      board: boardLabel || 'Unknown board',
+    })
+
+    const messages = [
+      {
+        role: 'user',
+        content: buildStoryModeUserMessage({
+          question: item.question,
+          priorAnswer: item.answer,
+          context: learnMessageContext,
+        }),
+      },
+    ]
+
+    const { data, error } = await sendChatMessage({
+      systemPrompt,
+      messages,
+      temperature: 0,
+    })
+
+    if (error?.status === 401) {
+      logout()
+      return
+    }
+
+    const facts = data?.answer || null
+    setQaThread((prev) =>
+      prev.map((q) =>
+        q.id === item.id
+          ? {
+              ...q,
+              storyLoading: false,
+              storyFacts: facts,
+              storyError: facts
+                ? null
+                : error?.message || 'Could not load Story mode. Please try again.',
+            }
+          : q,
+      ),
+    )
+  }
+
   return (
     <BoardShell viewport={learningMode === 'learn'}>
       <BoardHeader
@@ -1569,7 +1629,8 @@ function StudentDashboard() {
                               </div>
                               <div className="px-3 py-3">
                                 {item.answer ? (
-                                  item.responseMode === 'audio' ? (
+                                  <>
+                                  {item.responseMode === 'audio' ? (
                                     <>
                                       {audioTextViewById[item.id] ? (
                                         <div className="border border-[var(--board-rule)] bg-[var(--flap-face)] p-3">
@@ -1717,7 +1778,37 @@ function StudentDashboard() {
                                     <div className="text-sm text-[var(--flap-ink)] leading-relaxed">
                                       <FormattedAnswerText text={item.answer} />
                                     </div>
-                                  )
+                                  )}
+
+                                  <div className="mt-3 space-y-2">
+                                    <FlapButton
+                                      variant="amber"
+                                      onClick={() => handleStoryMode(item)}
+                                      disabled={item.storyLoading}
+                                    >
+                                      {item.storyLoading
+                                        ? 'Loading Story mode…'
+                                        : item.storyFacts
+                                          ? 'Refresh Story mode'
+                                          : 'Know more'}
+                                    </FlapButton>
+                                    {item.storyError ? (
+                                      <p className="text-xs text-[var(--flap-amber)] border border-[var(--flap-amber)]/40 bg-[var(--flap-face)] px-3 py-2 m-0">
+                                        {item.storyError}
+                                      </p>
+                                    ) : null}
+                                    {item.storyFacts ? (
+                                      <div className="p-3 border border-[var(--board-rule)] bg-[var(--flap-face)] text-sm whitespace-pre-line">
+                                        <strong className="font-[family-name:var(--font-flap)] tracking-[0.08em] uppercase text-[var(--flap-amber)]">
+                                          Story mode
+                                        </strong>
+                                        <div className="mt-1 font-[family-name:var(--font-body)] text-[var(--flap-ink)]">
+                                          <FormattedAnswerText text={item.storyFacts} />
+                                        </div>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  </>
                                 ) : (
                                   <div className="flex items-center gap-2">
                                     <span className="inline-block w-2 h-2 bg-[var(--flap-amber)] animate-pulse" />

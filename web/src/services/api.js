@@ -328,13 +328,14 @@ export async function postTeacherLogoutAllSessions() {
   }
 }
 
-export async function sendChatMessage({ systemPrompt, messages, learn }) {
+export async function sendChatMessage({ systemPrompt, messages, learn, temperature }) {
   try {
     const payload = {
       system_prompt: systemPrompt,
       messages,
     }
     if (learn) payload.learn = learn
+    if (typeof temperature === 'number') payload.temperature = temperature
     const response = await api.post('/chat', payload)
     return { data: response.data, error: null }
   } catch (error) {

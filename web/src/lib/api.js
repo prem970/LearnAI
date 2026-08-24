@@ -851,10 +851,12 @@ async function chat(request) {
   const auth = await requireUser(request)
   if (auth.error) return auth.error
   const body = await readJson(request)
-  const result = await chatCompletion({
+  const chatOpts = {
     systemPrompt: body.system_prompt,
     messages: body.messages || [],
-  })
+  }
+  if (typeof body.temperature === 'number') chatOpts.temperature = body.temperature
+  const result = await chatCompletion(chatOpts)
   if (auth.user.role === 'student' && result.answer && body.learn) {
     await recordLearnTurn({
       studentId: auth.user.id,

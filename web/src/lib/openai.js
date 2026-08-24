@@ -49,7 +49,7 @@ export function openaiKey() {
   return azureConfig().apiKey || process.env.OPENAI_API_KEY || ''
 }
 
-export async function chatCompletion({ systemPrompt, messages, maxTokens = 1024 }) {
+export async function chatCompletion({ systemPrompt, messages, maxTokens = 1024, temperature }) {
   const { resourceBase, apiKey, deployment } = azureConfig()
   if (!resourceBase || !apiKey) {
     const err = new Error(
@@ -67,6 +67,7 @@ export async function chatCompletion({ systemPrompt, messages, maxTokens = 1024 
       messages: payloadMessages,
       max_completion_tokens: maxTokens,
     }
+    if (typeof temperature === 'number') body.temperature = temperature
     if (target.modelInBody) body.model = target.model
 
     const response = await fetch(target.url, {
