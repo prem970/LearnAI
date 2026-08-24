@@ -28,6 +28,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-For production: `npm run build` then `npm start`.
+For production: `npm run build` 
+
+`npm start`.
 
 Try it
