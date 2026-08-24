@@ -596,3 +596,39 @@ export async function sendVoiceChatMessage({ systemPrompt, messages, audioBlob, 
   }
 }
 
+/** Gemini vision: homework photo hints (multipart). */
+const HOMEWORK_HINT_TIMEOUT_MS = 120_000
+
+export async function sendHomeworkHint({
+  imageFile,
+  note,
+  text,
+  systemPrompt,
+  messages = [],
+  learn,
+}) {
+  try {
+    const form = new FormData()
+    if (imageFile) {
+      const name = imageFile.name || `homework-${Date.now()}.jpg`
+      form.append('image', imageFile, name)
+    }
+    if (note) form.append('note', note)
+    if (text) form.append('text', text)
+    form.append('system_prompt', systemPrompt)
+    form.append('messages', JSON.stringify(messages || []))
+    if (learn) form.append('learn', JSON.stringify(learn))
+
+    const response = await api.post('/homework-hint', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: HOMEWORK_HINT_TIMEOUT_MS,
+    })
+
+    return { data: response.data, error: null }
+  } catch (error) {
+    return { data: null, error: extractErrors(error) }
+  }
+}
+

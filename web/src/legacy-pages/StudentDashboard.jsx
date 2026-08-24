@@ -8,6 +8,10 @@ import {
 } from '../data/studentDashboardMock.js'
 import { buildTeacherSystemPrompt, buildUserMessageWithContext } from '../prompts/teacherSystemPrompt.js'
 import {
+  buildHomeworkHintSystemPrompt,
+  buildHomeworkHintUserText,
+} from '../prompts/homeworkHintPrompt.js'
+import {
   fetchStudentDashboard,
   fetchTeachers,
   fetchTeacherTtsAudio,
@@ -15,11 +19,13 @@ import {
   fetchLearningRecs,
   generateDidVideo,
   sendChatMessage,
+  sendHomeworkHint,
   sendVoiceChatMessage,
   submitSessionFeedback,
 } from '../services/api.js'
 import { didMicrosoftVoiceIdForGender } from '../constants/didMicrosoftVoices.js'
 import FormattedAnswerText from '../components/FormattedAnswerText.jsx'
+import HomeworkPhotoUploader from '../components/HomeworkPhotoUploader.jsx'
 import LogoutReviewModal from '../components/LogoutReviewModal.jsx'
 import StudentQuizHub from '../components/StudentQuizHub.jsx'
 import { sanitizeMathForSpeech } from '../utils/speechTextSanitize.js'
@@ -208,6 +214,10 @@ function StudentDashboard() {
   const [subjectOpen, setSubjectOpen] = useState(true)
   const [lessonOpen, setLessonOpen] = useState(false)
   const [progressOpen, setProgressOpen] = useState(false)
+  const [homeworkPanelOpen, setHomeworkPanelOpen] = useState(true)
+  const [chatAttachOpen, setChatAttachOpen] = useState(false)
+  const [homeworkUploaderKey, setHomeworkUploaderKey] = useState(0)
+  const [homeworkSessionActive, setHomeworkSessionActive] = useState(false)
 
   const mediaRecorderRef = useRef(null)
   const mediaStreamRef = useRef(null)
@@ -216,6 +226,7 @@ function StudentDashboard() {
   const ttsVoicesRef = useRef({ male: null, female: null })
   const elevenLabsAudioRef = useRef(null)
   const elevenLabsObjectUrlRef = useRef(null)
+  const lastHomeworkImageRef = useRef(null)
 
   useEffect(() => {
     ttsRateRef.current = ttsRate
@@ -577,6 +588,98 @@ function StudentDashboard() {
     speakAnswerText(item, nextRate)
   }
 
+  const handleHomeworkPhotoSubmit = async ({ file, note }) => {
+    if (!file || chatLoading) return
+    if (!selectedSubject || !selectedLesson) return
+
+    setTeacherTopTool('learn')
+    setChatAttachOpen(false)
+
+    const noteText = String(note || '').trim()
+    const questionLabel = noteText
+      ? `[Homework photo] ${noteText}`
+      : '[Homework photo] Help me with this problem'
+    setDoubtHistory((prev) =>
+      prev.includes(questionLabel) ? prev : [questionLabel, ...prev].slice(0, 10),
+    )
+
+    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`
+    const teacher = selectedTeacher
+    lastHomeworkImageRef.current = file
+    setHomeworkSessionActive(true)
+
+    // Own object URL so remounting the uploader does not revoke the thread thumbnail
+    const imagePreviewUrl = URL.createObjectURL(file)
+
+    const systemPrompt = buildHomeworkHintSystemPrompt({
+      teacher: teacher || {},
+      subject: selectedSubject,
+      lesson: selectedLesson,
+      lessonTopics: topicList,
+      difficultyLevel,
+      grade: gradeLabel || '7',
+      board: boardLabel || 'Unknown board',
+    })
+
+    const userText = buildHomeworkHintUserText(noteText, {
+      ...learnMessageContext,
+      responseMode: 'text',
+    })
+
+    setQaThread((prev) => [
+      ...prev,
+      {
+        id,
+        question: questionLabel,
+        answer: null,
+        teacher,
+        lessonTitle: selectedLesson.title,
+        responseMode: 'text',
+        difficultyLevel,
+        homeworkPhoto: true,
+        imagePreviewUrl,
+        createdAt: new Date().toISOString(),
+      },
+    ])
+
+    setChatLoading(true)
+
+    const conversationMessages = qaThread
+      .filter((item) => item.answer)
+      .flatMap((item) => [
+        { role: 'user', content: item.question },
+        { role: 'assistant', content: item.answer },
+      ])
+
+    const { data, error } = await sendHomeworkHint({
+      imageFile: file,
+      note: userText,
+      systemPrompt,
+      messages: conversationMessages,
+      learn: teacher?.id
+        ? {
+            teacher_id: teacher.id,
+            subject: selectedSubject?.label || selectedSubject?.name || 'General',
+            lesson: selectedLesson?.title || null,
+            topics: topicList,
+            question: questionLabel,
+            response_mode: 'text',
+          }
+        : null,
+    })
+
+    if (error?.status === 401) {
+      logout()
+      return
+    }
+
+    setChatLoading(false)
+
+    const answer = data?.answer || error?.message || 'Sorry, something went wrong. Please try again.'
+    setQaThread((prev) => prev.map((item) => (item.id === id ? { ...item, answer } : item)))
+    setHomeworkUploaderKey((k) => k + 1)
+  }
+
   const handleSendMessage = async () => {
     const text = chatInput.trim()
     if (!text || chatLoading) return
@@ -588,6 +691,78 @@ function StudentDashboard() {
 
     const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`
     const teacher = selectedTeacher
+    const useHomeworkFollowUp =
+      Boolean(lastHomeworkImageRef.current) &&
+      qaThread.some((item) => item.homeworkPhoto && item.answer)
+
+    if (useHomeworkFollowUp) {
+      const systemPrompt = buildHomeworkHintSystemPrompt({
+        teacher: teacher || {},
+        subject: selectedSubject,
+        lesson: selectedLesson,
+        lessonTopics: topicList,
+        difficultyLevel,
+        grade: gradeLabel || '7',
+        board: boardLabel || 'Unknown board',
+      })
+
+      setQaThread((prev) => [
+        ...prev,
+        {
+          id,
+          question: text,
+          answer: null,
+          teacher,
+          lessonTitle: selectedLesson.title,
+          responseMode: 'text',
+          difficultyLevel,
+          homeworkPhoto: true,
+          createdAt: new Date().toISOString(),
+        },
+      ])
+
+      setChatLoading(true)
+
+      const conversationMessages = qaThread
+        .filter((item) => item.answer)
+        .flatMap((item) => [
+          { role: 'user', content: item.question },
+          { role: 'assistant', content: item.answer },
+        ])
+
+      const followUpText = buildHomeworkHintUserText(text, {
+        ...learnMessageContext,
+        responseMode: 'text',
+        extra: 'This is a follow-up on the homework photo already discussed. Hints only.',
+      })
+
+      const { data, error } = await sendHomeworkHint({
+        imageFile: lastHomeworkImageRef.current,
+        note: followUpText,
+        systemPrompt,
+        messages: conversationMessages,
+        learn: teacher?.id
+          ? {
+              teacher_id: teacher.id,
+              subject: selectedSubject?.label || selectedSubject?.name || 'General',
+              lesson: selectedLesson?.title || null,
+              topics: topicList,
+              question: text,
+              response_mode: 'text',
+            }
+          : null,
+      })
+
+      if (error?.status === 401) {
+        logout()
+        return
+      }
+
+      setChatLoading(false)
+      const answer = data?.answer || error?.message || 'Sorry, something went wrong. Please try again.'
+      setQaThread((prev) => prev.map((item) => (item.id === id ? { ...item, answer } : item)))
+      return
+    }
 
     const systemPrompt = buildTeacherSystemPrompt({
       teacher: teacher || {},
@@ -1361,11 +1536,23 @@ function StudentDashboard() {
                       {qaThread.map((item) => (
                         <div key={item.id} className="rounded-2xl border border-slate-100 overflow-hidden">
                           <div className="px-4 py-3 bg-slate-50">
-                            <p className="text-[11px] text-slate-500">Student asked</p>
+                            <p className="text-[11px] text-slate-500">
+                              {item.homeworkPhoto ? 'Homework photo' : 'Student asked'}
+                            </p>
+                            {item.imagePreviewUrl ? (
+                              <div className="mt-2 mb-2 rounded-xl overflow-hidden border border-slate-200 bg-white max-w-xs">
+                                <img
+                                  src={item.imagePreviewUrl}
+                                  alt="Homework"
+                                  className="max-h-40 w-full object-contain"
+                                />
+                              </div>
+                            ) : null}
                             <p className="text-sm font-medium text-[#0b1220]">{item.question}</p>
                             <p className="text-[11px] text-slate-400 mt-1">
                               Teacher: {item.teacher?.name || 'not selected'} · {item.responseMode} ·{' '}
                               {DIFFICULTY_LEVELS.find((d) => d.id === item.difficultyLevel)?.label || 'Beginner'}
+                              {item.homeworkPhoto ? ' · hints only' : ''}
                             </p>
                           </div>
                           <div className="px-4 py-3">
@@ -1768,13 +1955,47 @@ function StudentDashboard() {
             {/* Doubt history was moved into the Ask box */}
           </div>
 
+          {/* Homework Photo Help — dedicated entry */}
+          <section className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden shrink-0">
+            <button
+              type="button"
+              onClick={() => setHomeworkPanelOpen((o) => !o)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50"
+            >
+              <div>
+                <p className="text-sm font-semibold text-[#0b1220]">Homework Photo Help</p>
+                <p className="text-xs text-slate-500">
+                  Snap or upload a problem — get hints, not the answer.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-slate-500">
+                {homeworkPanelOpen ? 'Minimize' : 'Open'}
+              </span>
+            </button>
+            {homeworkPanelOpen && (
+              <div className="px-4 pb-4">
+                <HomeworkPhotoUploader
+                  key={`panel-${homeworkUploaderKey}`}
+                  disabled={!selectedLesson}
+                  loading={chatLoading}
+                  onSubmit={handleHomeworkPhotoSubmit}
+                />
+                {!selectedLesson && (
+                  <p className="mt-2 text-xs text-amber-700">Select a subject and lesson first.</p>
+                )}
+              </div>
+            )}
+          </section>
+
           {/* Ask box: grows to fill space when Subject/Lesson/Progress are minimized */}
           <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col flex-1 min-h-[200px]">
             <div className="flex items-center justify-between gap-3 mb-2">
               <div>
                 <p className="text-sm font-semibold text-[#0b1220]">Ask your question</p>
                 <p className="text-xs text-slate-500">
-                  {selectedLesson ? 'Your teacher will answer on the left.' : 'Select subject + lesson first.'}
+                  {selectedLesson
+                    ? 'Type a question, or attach a homework photo for hints.'
+                    : 'Select subject + lesson first.'}
                 </p>
               </div>
               <div className="text-xs font-semibold text-slate-500">
@@ -1799,13 +2020,29 @@ function StudentDashboard() {
               )}
             </div>
 
+            {chatAttachOpen && (
+              <div className="mt-3">
+                <HomeworkPhotoUploader
+                  key={`attach-${homeworkUploaderKey}`}
+                  compact
+                  disabled={!selectedLesson}
+                  loading={chatLoading}
+                  onSubmit={handleHomeworkPhotoSubmit}
+                  onClear={() => setChatAttachOpen(false)}
+                />
+              </div>
+            )}
+
             <div className="flex gap-2 mt-3">
               <button
                 type="button"
-                className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Add files"
-                title="Add files"
-                disabled={!selectedLesson}
+                onClick={() => setChatAttachOpen((o) => !o)}
+                className={`p-2.5 rounded-xl border hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed ${
+                  chatAttachOpen ? 'border-[#2563eb] bg-[#eff6ff]' : 'border-slate-200'
+                }`}
+                aria-label="Attach homework photo"
+                title="Attach homework photo"
+                disabled={!selectedLesson || chatLoading}
               >
                 📎
               </button>
@@ -1838,7 +2075,12 @@ function StudentDashboard() {
             </div>
             <div className="mt-2 flex items-center justify-between gap-2">
               <p className={`text-xs ${micError ? 'text-rose-600' : 'text-slate-400'}`}>
-                {micError || (micRecording ? 'Recording... click stop to send.' : 'Use mic for voice question.')}
+                {micError ||
+                  (micRecording
+                    ? 'Recording... click stop to send.'
+                    : homeworkSessionActive
+                      ? 'Follow-ups stay on your homework photo (hints only). Use mic for voice, or 📎 for a new photo.'
+                      : 'Use mic for voice question, or 📎 for a homework photo.')}
               </p>
             </div>
           </section>

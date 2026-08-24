@@ -10,6 +10,7 @@ import {
 } from './auth.js'
 import { sendOtpEmail } from './mail.js'
 import { chatCompletion, transcribeAudio } from './openai.js'
+import { homeworkHintCompletion } from './gemini.js'
 import { createVoiceFromSample } from './elevenlabs.js'
 import { synthesizeAzureTtsMp3 } from './azureTts.js'
 import { generateDidTalk } from './did.js'
@@ -66,6 +67,7 @@ export async function handleApi(request, slugParts) {
     if (slug === 'chat' && method === 'POST') return await chat(request)
     if (slug === 'chat/voice' && method === 'POST') return await voiceChat(request)
     if (slug === 'chat/video' && method === 'POST') return await chatVideo(request)
+    if (slug === 'homework-hint' && method === 'POST') return await homeworkHint(request)
     const quizResponse = await dispatchQuizApi(request, slugParts, method)
     if (quizResponse) return quizResponse
     return json({ message: 'Not found.' }, 404)
@@ -847,6 +849,92 @@ async function voiceChat(request) {
     })
   }
   return json({ transcript, answer: result.answer, usage: result.usage })
+}
+
+const HOMEWORK_IMAGE_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+const HOMEWORK_IMAGE_MAX_BYTES = 8 * 1024 * 1024
+
+async function homeworkHint(request) {
+  const auth = await requireUser(request)
+  if (auth.error) return auth.error
+  if (auth.user.role !== 'student') {
+    return json({ message: 'Only students can use homework photo hints.' }, 403)
+  }
+
+  const form = await request.formData()
+  const imageEntry = form.get('image')
+  const note = String(form.get('note') || '').trim()
+  const systemPrompt = String(form.get('system_prompt') || '').trim()
+  if (!systemPrompt) {
+    return json({ message: 'system_prompt is required.' }, 422)
+  }
+
+  let messages = []
+  try {
+    messages = JSON.parse(String(form.get('messages') || '[]'))
+  } catch {
+    messages = []
+  }
+  let learn = null
+  try {
+    learn = JSON.parse(String(form.get('learn') || 'null'))
+  } catch {
+    learn = null
+  }
+
+  let imageBase64 = null
+  let mimeType = 'image/jpeg'
+  if (imageEntry && typeof imageEntry !== 'string') {
+    mimeType = imageEntry.type || 'image/jpeg'
+    if (!HOMEWORK_IMAGE_TYPES.has(mimeType)) {
+      return json({ message: 'Please upload a JPG, PNG, or WEBP image.' }, 422)
+    }
+    const buf = Buffer.from(await imageEntry.arrayBuffer())
+    if (buf.length > HOMEWORK_IMAGE_MAX_BYTES) {
+      return json({ message: 'Image is too large. Please upload a file under 8MB.' }, 422)
+    }
+    if (buf.length === 0) {
+      return json({ message: 'Image file is empty.' }, 422)
+    }
+    imageBase64 = buf.toString('base64')
+  }
+
+  if (!imageBase64 && !note && (!Array.isArray(messages) || messages.length === 0)) {
+    return json({ message: 'A homework photo or a follow-up message is required.' }, 422)
+  }
+
+  const userText =
+    note ||
+    (imageBase64
+      ? ''
+      : String(form.get('text') || '').trim() || 'Please continue helping with a hint only.')
+
+  const result = await homeworkHintCompletion({
+    systemPrompt,
+    text: userText,
+    imageBase64,
+    mimeType,
+    history: Array.isArray(messages) ? messages : [],
+  })
+
+  const questionLabel = imageBase64
+    ? `[Homework photo]${note ? ` ${note}` : ' Help me with this problem'}`
+    : note || userText || '[Homework follow-up]'
+
+  if (result.answer && learn) {
+    await recordLearnTurn({
+      studentId: auth.user.id,
+      teacherId: learn.teacher_id,
+      subject: learn.subject,
+      lesson: learn.lesson,
+      topics: learn.topics,
+      question: learn.question || questionLabel,
+      answer: result.answer,
+      responseMode: learn.response_mode || 'text',
+    })
+  }
+
+  return json({ answer: result.answer, usage: result.usage })
 }
 
 async function teacherInsights(request) {

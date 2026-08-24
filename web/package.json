@@ -9,17 +9,19 @@
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "db:setup": "prisma generate && prisma db push && prisma db seed"
+    "db:import": "node scripts/import-v2holoroid.js",
+    "db:setup": "prisma generate && prisma db push && prisma db seed",
+    "db:setup:pg": "prisma generate && prisma db push && npm run db:import"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6.19.0",
     "axios": "^1.19.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
-    "mysql2": "^3.23.3",
     "next": "16.3.1",
     "nodemailer": "^9.0.5",
     "prop-types": "^15.8.1",

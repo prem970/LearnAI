@@ -6,7 +6,7 @@ export async function ensureQuizTables() {
   if (ready) return
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS quizzes (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       teacher_id INT NOT NULL,
       title VARCHAR(255) NOT NULL,
       board_id INT NULL,
@@ -21,77 +21,81 @@ export async function ensureQuizTables() {
       difficulty VARCHAR(32) NOT NULL DEFAULT 'beginner',
       question_count INT NOT NULL DEFAULT 5,
       status VARCHAR(24) NOT NULL DEFAULT 'draft',
-      published_at DATETIME NULL,
-      insights_json JSON NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      INDEX quizzes_teacher_status (teacher_id, status),
-      INDEX quizzes_grade_status (grade_id, status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      published_at TIMESTAMP NULL,
+      insights_json JSONB NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS quizzes_teacher_status ON quizzes (teacher_id, status)
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS quizzes_grade_status ON quizzes (grade_id, status)
   `)
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS quiz_questions (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       quiz_id INT NOT NULL,
       sort_order INT NOT NULL DEFAULT 0,
       type VARCHAR(24) NOT NULL DEFAULT 'mcq',
       prompt TEXT NOT NULL,
-      options JSON NULL,
+      options JSONB NULL,
       correct_answer TEXT NOT NULL,
       explanation TEXT NOT NULL,
       topic_title VARCHAR(255) NULL,
       misconception_hint TEXT NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      INDEX quiz_questions_quiz_sort (quiz_id, sort_order)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS quiz_questions_quiz_sort ON quiz_questions (quiz_id, sort_order)
   `)
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS quiz_attempts (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       quiz_id INT NOT NULL,
       student_id INT NOT NULL,
       status VARCHAR(24) NOT NULL DEFAULT 'in_progress',
       current_index INT NOT NULL DEFAULT 0,
-      started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      completed_at DATETIME NULL,
+      started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at TIMESTAMP NULL,
       score_percent DECIMAL(5,2) NULL,
       correct_count INT NOT NULL DEFAULT 0,
       total_time_ms INT NOT NULL DEFAULT 0,
-      summary_json JSON NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      UNIQUE KEY quiz_attempts_quiz_student (quiz_id, student_id),
-      INDEX quiz_attempts_student_status (student_id, status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      summary_json JSONB NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (quiz_id, student_id)
+    )
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS quiz_attempts_student_status ON quiz_attempts (student_id, status)
   `)
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS quiz_attempt_answers (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       attempt_id INT NOT NULL,
       question_id INT NOT NULL,
       first_answer TEXT NULL,
-      first_is_correct TINYINT(1) NULL,
+      first_is_correct BOOLEAN NULL,
       latest_answer TEXT NULL,
-      is_correct TINYINT(1) NOT NULL DEFAULT 0,
+      is_correct BOOLEAN NOT NULL DEFAULT false,
       time_ms INT NOT NULL DEFAULT 0,
       hint_count INT NOT NULL DEFAULT 0,
       incorrect_attempts INT NOT NULL DEFAULT 0,
-      revealed TINYINT(1) NOT NULL DEFAULT 0,
+      revealed BOOLEAN NOT NULL DEFAULT false,
       misconception VARCHAR(500) NULL,
-      tutor_thread JSON NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      UNIQUE KEY quiz_attempt_answers_unique (attempt_id, question_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      tutor_thread JSONB NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (attempt_id, question_id)
+    )
   `)
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS student_learning_recs (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       student_id INT NOT NULL,
       teacher_id INT NOT NULL,
       quiz_id INT NULL,
@@ -100,10 +104,11 @@ export async function ensureQuizTables() {
       topic VARCHAR(255) NULL,
       reason TEXT NOT NULL,
       status VARCHAR(24) NOT NULL DEFAULT 'open',
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      INDEX student_learning_recs_student (student_id, status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS student_learning_recs_student ON student_learning_recs (student_id, status)
   `)
   ready = true
 }
@@ -397,9 +402,9 @@ export async function saveAnswer(row) {
         attempt_id, question_id, first_answer, first_is_correct, latest_answer, is_correct,
         time_ms, hint_count, incorrect_attempts, revealed, misconception, tutor_thread
       ) VALUES (
-        ${row.attemptId}, ${row.questionId}, ${row.firstAnswer}, ${row.firstIsCorrect == null ? null : row.firstIsCorrect ? 1 : 0},
-        ${row.latestAnswer}, ${row.isCorrect ? 1 : 0}, ${row.timeMs || 0}, ${row.hintCount || 0},
-        ${row.incorrectAttempts || 0}, ${row.revealed ? 1 : 0}, ${row.misconception || null}, ${thread}
+        ${row.attemptId}, ${row.questionId}, ${row.firstAnswer}, ${row.firstIsCorrect == null ? null : row.firstIsCorrect},
+        ${row.latestAnswer}, ${row.isCorrect}, ${row.timeMs || 0}, ${row.hintCount || 0},
+        ${row.incorrectAttempts || 0}, ${row.revealed}, ${row.misconception || null}, ${thread}
       )
     `
     return getAnswer(row.attemptId, row.questionId)
@@ -407,13 +412,13 @@ export async function saveAnswer(row) {
   await prisma.$executeRaw`
     UPDATE quiz_attempt_answers SET
       first_answer = ${row.firstAnswer ?? existing.firstAnswer},
-      first_is_correct = ${row.firstIsCorrect == null ? existing.firstIsCorrect : row.firstIsCorrect ? 1 : 0},
+      first_is_correct = ${row.firstIsCorrect == null ? existing.firstIsCorrect : row.firstIsCorrect},
       latest_answer = ${row.latestAnswer ?? existing.latestAnswer},
-      is_correct = ${row.isCorrect ? 1 : 0},
+      is_correct = ${row.isCorrect},
       time_ms = ${row.timeMs ?? existing.timeMs},
       hint_count = ${row.hintCount ?? existing.hintCount},
       incorrect_attempts = ${row.incorrectAttempts ?? existing.incorrectAttempts},
-      revealed = ${row.revealed ? 1 : 0},
+      revealed = ${row.revealed},
       misconception = ${row.misconception ?? existing.misconception},
       tutor_thread = ${thread}
     WHERE id = ${existing.id}

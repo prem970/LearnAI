@@ -9,20 +9,23 @@ export async function ensureLearnTurnsTable() {
   if (tableReady) return
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS learn_turns (
-      id INT NOT NULL AUTO_INCREMENT,
+      id SERIAL PRIMARY KEY,
       student_id INT NOT NULL,
       teacher_id INT NOT NULL,
       subject VARCHAR(128) NOT NULL,
       lesson VARCHAR(255) NULL,
-      topics JSON NULL,
+      topics JSONB NULL,
       question TEXT NOT NULL,
       answer_preview VARCHAR(500) NULL,
       response_mode VARCHAR(32) NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      INDEX learn_turns_teacher_created (teacher_id, created_at),
-      INDEX learn_turns_teacher_subject (teacher_id, subject)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS learn_turns_teacher_created ON learn_turns (teacher_id, created_at)
+  `)
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS learn_turns_teacher_subject ON learn_turns (teacher_id, subject)
   `)
   tableReady = true
 }
