@@ -375,10 +375,7 @@ function QuizPlayer({ session, setSession, onExit, onLearnTopic }) {
                   m.role === 'student' ? 'bg-[var(--board-steel-deep)]' : 'bg-[var(--flap-face)]'
                 }`}
               >
-                <FormattedAnswerText
-                  text={m.content}
-                  className="text-sm text-[var(--flap-ink)] prose-invert [&_strong]:!text-[var(--flap-ink)] [&_h1]:!text-[var(--flap-ink)] [&_h2]:!text-[var(--flap-ink)] [&_h3]:!text-[var(--flap-ink)]"
-                />
+                <FormattedAnswerText text={m.content} className="text-sm" />
               </div>
             ))
           )}

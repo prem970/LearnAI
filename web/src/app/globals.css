@@ -46,8 +46,8 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--flap-amber) 55%, transparent);
-    color: var(--flap-ink);
+    background: var(--flap-amber);
+    color: var(--board-steel-deep);
   }
 
   a {
